@@ -628,6 +628,9 @@ body.modo-inwit .foto-fab { background: linear-gradient(135deg, #1F5F5B, #2A9D93
 .cam-info .hint { margin: 2px 0 0; color: rgba(255,255,255,.85); font-size: .78rem }
 .cam-cod { position: fixed; inset: 0; z-index: 95; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(0,0,0,.6) } .cam-cod[hidden] { display: none }
 .cam-cod-box { width: 100%; max-width: 340px; background: var(--surface); color: var(--ink); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 10px; text-align: center }
+.gs-box { text-align: left; max-height: 86vh; overflow: auto } .gs-box b#gs-t { text-align: center }
+.gs-ol { margin: 0; padding-left: 20px; display: grid; gap: 8px; font-size: .92rem; line-height: 1.35 }
+.gs-no { display: flex; gap: 8px; align-items: center; font-size: .88rem; color: var(--muted) }
 .cam-cod-box b { font: 700 1.15rem var(--f-display) } .cam-cod-box p { margin: 0 0 4px }
 #view-foto.cam-on:not(.solo-gal) .cam-ultima:not([hidden]) { display: block; position: absolute; left: 22px; bottom: calc(36px + env(safe-area-inset-bottom, 0px)); width: 60px; height: 60px; padding: 0; border-radius: 12px; border: 2px solid #FFFFFF; overflow: hidden; background: #000; cursor: pointer }
 .cam-ultima img { width: 100%; height: 100%; object-fit: cover; display: block }
@@ -805,6 +808,13 @@ kbd { display: inline-block; padding: 1px 7px; border-radius: 6px; background: #
     <datalist id="dl-siti"></datalist>
   </section>
 
+    <div class="cam-cod" id="gs" role="dialog" aria-labelledby="gs-t" hidden><div class="cam-cod-box gs-box"><b id="gs-t">📱 Salvare su iPhone</b>
+      <ol class="gs-ol"><li>Si apre il menu di condivisione.</li>
+      <li><b>Nella galleria del telefono:</b> tocca <b>Salva immagini</b>. Finiscono in Recenti, senza cartelle.</li>
+      <li><b>Divise per sito:</b> tocca <b>Salva su File</b> → <b>iCloud Drive</b> → tocca l'icona della cartella con il <b>+</b> in alto e chiamala <b id="gs-nome">NU009 Ottana</b> → aprila → <b>Salva</b>.</li>
+      <li><b>WhatsApp:</b> scegli la chat; la didascalia è già scritta.</li></ol>
+      <label class="gs-no"><input type="checkbox" id="gs-mai"> Non mostrarla più</label>
+      <button type="button" class="btn pri" id="gs-ok">Continua</button><button type="button" class="btn sm" id="gs-x">Annulla</button></div></div>
   <section id="view-storico" hidden>
     <div class="arch-head"><h2>Schede su questo telefono</h2><button class="btn sm" id="btn-csv" title="Esporta tutto (CSV)">CSV</button><button class="btn sm pri-sm" id="btn-up" hidden>⬆ Carica nuove</button></div>
     <p class="hint">Restano solo su questo telefono. Ogni tanto tocca <b>Backup ora</b> e scegli <b>Salva su File</b> (meglio iCloud Drive): se perdi o cambi telefono, con <b>Ripristina backup</b> recuperi schede e foto.</p>
@@ -3952,6 +3962,25 @@ $("f_codice").addEventListener("change", () => {
   dati.codice = site.c; if (!dati.sito) dati.sito = site.n; saveDraft(); fillForm();
 });
 renderList();
+// iPhone: a short guide before the share menu, every time a save starts (Mirko); "Non mostrarla più" turns it off
+(function () {
+  const ua = navigator.userAgent, ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  if (!ios) return;
+  let dopo = null, passa = false;
+  document.addEventListener("click", e => {
+    const t = e.target.closest("#foto-save-all, #sel-save, .finv, #btn-bk, #btn-bk-top"); if (!t || passa) return;
+    try { if (localStorage.getItem("bts-guida-salva") === "no") return; } catch (er) {}
+    e.preventDefault(); e.stopImmediatePropagation();
+    const det = t.closest("details.fgrp"), nome = det ? det.dataset.g : t.matches("#btn-bk, #btn-bk-top") ? "SITEL backup" : "";
+    $("gs-nome").textContent = nome || "NU009 Ottana"; dopo = t; $("gs-mai").checked = false; $("gs").hidden = false;
+  }, true);
+  $("gs-ok").onclick = () => {
+    $("gs").hidden = true; if ($("gs-mai").checked) { try { localStorage.setItem("bts-guida-salva", "no"); } catch (er) {} }
+    // the share menu opens inside this same tap, as iPhone requires
+    const t = dopo; dopo = null; if (t) { passa = true; try { t.click(); } finally { passa = false; } }
+  };
+  $("gs-x").onclick = () => { $("gs").hidden = true; dopo = null; };
+})();
 /* ---------- recovery backup (by hand: Mirko does not want reminders): a file the phone keeps in File / iCloud, never on our servers ---------- */
 const BK_ULTIMO = "bts-bk-ultimo";
 // the team code key and the phone's own settings stay out: the file must be safe to keep anywhere
