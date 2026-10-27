@@ -800,7 +800,9 @@ kbd { display: inline-block; padding: 1px 7px; border-radius: 6px; background: #
 
   <section id="view-storico" hidden>
     <div class="arch-head"><h2>Schede su questo telefono</h2><button class="btn sm" id="btn-csv" title="Esporta tutto (CSV)">CSV</button><button class="btn sm pri-sm" id="btn-up" hidden>⬆ Carica nuove</button></div>
-    <p class="hint">Restano solo su questo telefono: se cancelli i dati di navigazione si perdono, per quelle importanti crea il PDF.</p>
+    <p class="hint">Restano solo su questo telefono. Ogni tanto tocca <b>Backup ora</b> e scegli <b>Salva su File</b> (meglio iCloud Drive): se perdi o cambi telefono, con <b>Ripristina backup</b> recuperi schede e foto.</p>
+    <div class="azioni due"><button type="button" class="az" id="btn-bk">💾 Backup ora</button><button type="button" class="az" id="btn-bk-rip">♻️ Ripristina backup</button></div>
+    <input id="bk-in" type="file" accept=".json,application/json,image/jpeg" multiple hidden>
     <div class="f search"><label for="q">Cerca</label><div class="inp"><input id="q" type="search" placeholder="Sito, codice sito o tecnico"></div></div>
     <div id="list" class="list"></div>
   </section>
@@ -3896,6 +3898,59 @@ $("f_codice").addEventListener("change", () => {
   dati.codice = site.c; if (!dati.sito) dati.sito = site.n; saveDraft(); fillForm();
 });
 renderList();
+/* ---------- recovery backup (by hand: Mirko does not want reminders): a file the phone keeps in File / iCloud, never on our servers ---------- */
+const BK_ULTIMO = "bts-bk-ultimo";
+// the team code key and the phone's own settings stay out: the file must be safe to keep anywhere
+const BK_NO = new Set(["bts-siti", "bts-siti-k", "bts-lite", "bts-login-giorno", "bts-inst-no", BK_ULTIMO]);
+const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+async function bkFai() {
+  const ls = {};
+  try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k.startsWith("bts-") && !BK_NO.has(k)) ls[k] = localStorage.getItem(k); } } catch (e) {}
+  // photos: all of them in the list, but only those not in an earlier backup go out as JPG (one per photo, viewable in File)
+  const foto = await fotoAll(), files = [], usati = new Set(), meta = [];
+  for (const f of foto) {
+    let nome = nomeOut(f); if (usati.has(nome)) nome = nome.replace(/\.jpg$/i, "") + " " + f.id.slice(-5) + ".jpg"; usati.add(nome);
+    const { blob, thumb, ...m } = f; meta.push({ ...m, file: nome });
+    if (!f.bk) files.push(new File([f.blob], nome, { type: "image/jpeg" }));
+  }
+  const n = loadStore().length;
+  files.unshift(new File([JSON.stringify({ app: "SITEL", v: 1, creato: Date.now(), ls, foto: meta })], "SITEL backup " + today() + ".json", { type: "application/json" }));
+  if (!(navigator.canShare && navigator.canShare({ files }))) { toast("Da qui il backup non si può fare: aprilo dal telefono"); return false; }
+  try { await navigator.share({ files }); }
+  catch (e) { if (!(e && e.name === "AbortError")) toast("Backup non riuscito, riprova"); return false; }
+  const ora = Date.now();
+  for (const f of foto) if (!f.bk) { f.bk = ora; try { await fotoPut(f); } catch (e) {} }
+  lsSet(BK_ULTIMO, String(ora)); bigOk("Backup fatto: " + n + (n === 1 ? " scheda, " : " schede, ") + foto.length + " foto");
+  return true;
+}
+async function bkRipristina(fs) {
+  const jsons = fs.filter(f => /\.json$/i.test(f.name)), img = new Map(fs.filter(f => !/\.json$/i.test(f.name)).map(f => [f.name, f]));
+  if (!jsons.length) { toast("Scegli anche il file \"SITEL backup ….json\""); return; }
+  let schede = 0, foto = 0;
+  const have = new Set((await fotoAll()).map(f => f.id));
+  for (const j of jsons) {
+    let b; try { b = JSON.parse(await j.text()); } catch (e) { b = null; }
+    if (!b || b.app !== "SITEL") { toast(j.name + ": non è un backup SITEL"); continue; }
+    for (const [k, v] of Object.entries(b.ls || {})) {
+      if (k === STORE) {
+        // schede: one per id, the most recent wins; nothing on the phone is lost
+        let tutte = loadStore(); const per = new Map(tutte.map(s => [s.id, s]));
+        for (const s of JSON.parse(v || "[]")) { const c = per.get(s.id); if (!c || (s.savedAt || 0) > (c.savedAt || 0)) { per.set(s.id, s); schede++; } }
+        writeStore([...per.values()].sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0)));
+      } else if (lsGet(k) === null) lsSet(k, v);
+    }
+    for (const m of b.foto || []) {
+      const file = img.get(m.file); if (!file || have.has(m.id)) continue;
+      const { file: _, ...rec } = m; try { await fotoPut({ ...rec, blob: file, bk: rec.bk || Date.now() }); have.add(m.id); foto++; } catch (e) {}
+    }
+  }
+  renderList(); try { await renderFoto(); miniMancanti(); } catch (e) {}
+  bigOk("Ripristinate " + schede + (schede === 1 ? " scheda e " : " schede e ") + foto + " foto");
+}
+$("btn-bk").onclick = () => bkFai();
+$("btn-bk-rip").onclick = () => $("bk-in").click();
+$("bk-in").addEventListener("change", () => { const fs = [...($("bk-in").files || [])]; $("bk-in").value = ""; if (fs.length) bkRipristina(fs); });
 // On a phone, open the share sheet (WhatsApp, mail, Files); elsewhere a normal download
 downloads = { save: async ({ filename, data }) => {
   const type = filename.endsWith(".pdf") ? "application/pdf" : filename.endsWith(".jpg") ? "image/jpeg" : filename.endsWith(".csv") ? "text/csv" : "text/plain";
