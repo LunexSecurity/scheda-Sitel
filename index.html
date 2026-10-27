@@ -346,14 +346,38 @@ html.lite .ch-meteo i { animation: none !important } html.lite .ch-meteo .goccia
 #chiave.gl .ch-isola { display: none }
 /* real tower photos with a slow camera move (Ken Burns) and a cross fade */
 .ch-foto { position: absolute; inset: 0; overflow: hidden; z-index: 0; pointer-events: none; background: #3F78C4 }
-.ch-foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.6s ease; will-change: transform, opacity }
-.ch-foto img.su { opacity: 1 }
+.ch-foto > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.6s ease; will-change: transform, opacity }
+.ch-foto > img.su { opacity: 1 }
 .ch-foto .kb-giu { animation: kbGiu 9.6s linear both } @keyframes kbGiu { from { transform: scale(1.35) translateY(9%) } to { transform: scale(1.35) translateY(-9%) } }
 .ch-foto .kb-su { animation: kbSu 9.6s linear both } @keyframes kbSu { from { transform: scale(1.35) translateY(-9%) } to { transform: scale(1.35) translateY(9%) } }
 .ch-foto .kb-zoom { animation: kbZoom 9.6s linear both } @keyframes kbZoom { from { transform: scale(1.05) } to { transform: scale(1.4) translateY(4%) } }
 .ch-foto .kb-largo { animation: kbLargo 9.6s linear both } @keyframes kbLargo { from { transform: scale(1.45) translate(-4%, 3%) } to { transform: scale(1.08) } }
 .ch-foto.ok img.su { filter: brightness(1.12) saturate(1.1); transition: filter 1.2s, opacity 1.6s }
 html.lite .ch-foto img { animation: none !important; transform: scale(1.1) }
+/* 3D drone shot from real photos: tower cut out, live sky behind, different depths (parallax) */
+.ch-foto .sl { position: absolute; inset: 0; opacity: 0; transition: opacity 1.6s ease }
+.ch-foto .sl.su { opacity: 1 }
+.ch-foto .cielo { position: absolute; inset: -8%; overflow: hidden }
+.ch-foto .nb { position: absolute; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,255,255,.95), rgba(255,255,255,.55) 45%, rgba(255,255,255,0)); filter: blur(6px); animation: chNb linear infinite }
+@keyframes chNb { from { transform: translateX(-30vw) } to { transform: translateX(110vw) } }
+.ch-foto .sole { position: absolute; right: -25vmax; top: -25vmax; width: 70vmax; height: 70vmax; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,255,240,.95), rgba(255,250,220,.45) 25%, rgba(255,240,200,.12) 55%, transparent) }
+.ch-foto .torre { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform-origin: 50% 60%; filter: drop-shadow(0 18px 30px rgba(0,0,0,.25)) }
+.ch-foto .flare { position: absolute; border-radius: 50%; pointer-events: none; mix-blend-mode: screen }
+.ch-foto .f1 { width: 22vmax; height: 22vmax; background: radial-gradient(closest-side, rgba(170,220,255,.28), transparent) }
+.ch-foto .f2 { width: 9vmax; height: 9vmax; background: radial-gradient(closest-side, rgba(255,230,170,.35), transparent) }
+/* the moves: tower (near) travels a lot and turns a little in 3D, sky (far) travels little, flares go the other way */
+.m-giu .torre { animation: tGiu 10.8s ease-in-out both } @keyframes tGiu { from { transform: perspective(1000px) scale(1.25) translateY(6%) rotateX(5deg) rotateY(-3deg) } to { transform: perspective(1000px) scale(1.25) translateY(-5%) rotateX(-3deg) rotateY(3deg) } }
+.m-su .torre { animation: tSu 10.8s ease-in-out both } @keyframes tSu { from { transform: perspective(1000px) scale(1.25) translateY(-5%) rotateX(-3deg) rotateY(3deg) } to { transform: perspective(1000px) scale(1.25) translateY(6%) rotateX(5deg) rotateY(-3deg) } }
+.m-avanti .torre { animation: tAv 10.8s ease-in-out both } @keyframes tAv { from { transform: perspective(1000px) scale(1.04) rotateY(-4deg) } to { transform: perspective(1000px) scale(1.35) translateY(3%) rotateY(3deg) } }
+.m-indietro .torre { animation: tIn 10.8s ease-in-out both } @keyframes tIn { from { transform: perspective(1000px) scale(1.38) translate(-3%, 3%) rotateY(4deg) } to { transform: perspective(1000px) scale(1.06) rotateY(-3deg) } }
+.m-giu .cielo { animation: cGiu 10.8s ease-in-out both } @keyframes cGiu { from { transform: translateY(2.5%) } to { transform: translateY(-2.5%) } }
+.m-su .cielo { animation: cSu 10.8s ease-in-out both } @keyframes cSu { from { transform: translateY(-2.5%) } to { transform: translateY(2.5%) } }
+.m-avanti .cielo, .m-indietro .cielo { animation: cZ 10.8s ease-in-out both } @keyframes cZ { from { transform: scale(1) } to { transform: scale(1.05) } }
+.ch-foto .sl .f1 { animation: fl1 10.8s ease-in-out both } @keyframes fl1 { from { left: 62%; top: 8% } to { left: 18%; top: 44% } }
+.ch-foto .sl .f2 { animation: fl2 10.8s ease-in-out both } @keyframes fl2 { from { left: 52%; top: 18% } to { left: 30%; top: 60% } }
+.ch-foto.ok .sl.su .torre { filter: drop-shadow(0 0 18px rgba(92,200,188,.55)) brightness(1.08) }
+html.lite .ch-foto * { animation: none !important } html.lite .ch-foto .torre { transform: scale(1.15) }
+@media (prefers-reduced-motion: reduce) { .ch-foto * { animation-duration: 40s !important } }
 /* cartoon site behind the code: the drawing moves down to the ground and back up */
 .ch-cartoon { position: absolute; inset: 0; overflow: hidden; z-index: 0; pointer-events: none }
 .ch-cartoon svg { display: block; width: 100%; height: auto; animation: ccGiu 50s ease-in-out infinite }
@@ -1918,19 +1942,27 @@ async function chMeteo() {
   fuori.innerHTML = h;
   const t = $("ch-tempo"); t.textContent = `${ico} ${nome} · ${Math.round(c.temperature_2m)}°C · 💨 ${Math.round(vento)} km/h`; t.hidden = false;
 }
-// real photos of a tower (Mirko's, 27/10/2026) behind the code: slow drone-like moves, one fading into the next
+// real photos of a tower (Mirko's, 27/10/2026) made into a 3D drone shot: the tower is cut out of its sky and moves in depth,
+// a live sky with drifting clouds and the sun moves slower behind it (parallax); one shot fades into the next
 let ch3d = null;
 const ch3dAvvia = () => {
   const box = $("ch-foto"); if (!box || box.firstChild) return;
-  const moti = ["kb-giu", "kb-su", "kb-zoom", "kb-giu", "kb-su", "kb-largo"], N = 6, DUR = 8000;
-  const lay = [0, 1].map(() => { const im = document.createElement("img"); im.alt = ""; im.decoding = "async"; box.appendChild(im); return im; });
-  let i = 0, top = 0;
+  // sky colour of each photo (top, horizon) so the new sky matches the light of the shot
+  const CIELO = [["#5882C5", "#9CC2EE"], ["#71A0E3", "#B4D4F4"], ["#5D84BE", "#9DBFE6"], ["#58829F", "#93B6DA"], ["#6E9EE5", "#B2D2F5"], ["#6C95DD", "#AECDF2"]];
+  const MOTI = ["m-giu", "m-su", "m-avanti", "m-giu", "m-su", "m-indietro"], N = 6, DUR = 9000;
+  const nube = (t, l, w, d, o) => `<i class="nb" style="top:${t}%;left:${l}%;width:${w}vmax;height:${w * .38}vmax;animation-duration:${d}s;animation-delay:-${(Math.random() * d).toFixed(0)}s;opacity:${o}"></i>`;
+  const scena = k => { const [a, b] = CIELO[k];
+    const d = document.createElement("div"); d.className = "sl";
+    d.innerHTML = `<div class="cielo" style="background:linear-gradient(180deg,${a},${b})">${nube(6, -10, 60, 70, .55)}${nube(22, 30, 46, 90, .4)}${nube(40, -30, 70, 110, .35)}${nube(58, 20, 50, 80, .3)}<i class="sole"></i></div>
+      <img class="torre" alt="" decoding="async" src="sfondo/t${k + 1}.webp"><i class="flare f1"></i><i class="flare f2"></i>`;
+    return d; };
+  let i = 0, cur = null;
   const mostra = () => {
-    const im = lay[top]; im.className = ""; void im.offsetWidth;
-    im.src = "sfondo/" + (i % N + 1) + ".jpg"; im.className = "su " + moti[i % N]; lay[1 - top].classList.remove("su");
-    // the next photo loads while this one moves
-    new Image().src = "sfondo/" + ((i + 1) % N + 1) + ".jpg";
-    i++; top = 1 - top;
+    const d = scena(i % N); d.classList.add(MOTI[i % N]); box.appendChild(d);
+    requestAnimationFrame(() => requestAnimationFrame(() => d.classList.add("su")));
+    const old = cur; cur = d; if (old) { old.classList.remove("su"); setTimeout(() => old.remove(), 1800); }
+    new Image().src = "sfondo/t" + ((i + 1) % N + 1) + ".webp";
+    i++;
   };
   mostra();
   if (!document.documentElement.classList.contains("lite")) setInterval(() => { if (!$("chiave").hidden) mostra(); }, DUR);
