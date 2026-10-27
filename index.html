@@ -626,8 +626,9 @@ body.modo-inwit .foto-fab { background: linear-gradient(135deg, #1F5F5B, #2A9D93
 .cam-x { flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%; border: 0; background: rgba(0,0,0,.45); color: #FFFFFF; font-size: 1.3rem; cursor: pointer }
 .cam-info { color: #FFFFFF; min-width: 0; padding-top: 2px } .cam-info b { font: 700 1.05rem var(--f-display); letter-spacing: .04em; text-transform: uppercase }
 .cam-info .hint { margin: 2px 0 0; color: rgba(255,255,255,.85); font-size: .78rem }
-.cam-cod { margin-top: 8px } .cam-cod input { width: 100%; max-width: 260px; padding: 10px 12px; border-radius: 10px; border: 2px solid #FFFFFF; background: rgba(0,0,0,.55); color: #FFFFFF; font: 700 16px var(--f-display); letter-spacing: .06em; text-transform: uppercase }
-.cam-cod input::placeholder { color: rgba(255,255,255,.7); text-transform: none; letter-spacing: 0; font-weight: 400 }
+.cam-cod { position: absolute; inset: 0; z-index: 5; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(0,0,0,.6) } .cam-cod[hidden] { display: none }
+.cam-cod-box { width: 100%; max-width: 340px; background: var(--surface); color: var(--ink); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 10px; text-align: center }
+.cam-cod-box b { font: 700 1.15rem var(--f-display) } .cam-cod-box p { margin: 0 0 4px }
 #view-foto.cam-on:not(.solo-gal) .cam-ultima:not([hidden]) { display: block; position: absolute; left: 22px; bottom: calc(36px + env(safe-area-inset-bottom, 0px)); width: 60px; height: 60px; padding: 0; border-radius: 12px; border: 2px solid #FFFFFF; overflow: hidden; background: #000; cursor: pointer }
 .cam-ultima img { width: 100%; height: 100%; object-fit: cover; display: block }
 #view-foto.cam-on:not(.solo-gal) .cam-nat { display: block; position: absolute; right: 22px; bottom: calc(42px + env(safe-area-inset-bottom, 0px)); width: 50px; height: 50px; border-radius: 50%; border: 0; background: rgba(0,0,0,.45); font-size: 1.4rem; cursor: pointer }
@@ -836,7 +837,8 @@ kbd { display: inline-block; padding: 1px 7px; border-radius: 6px; background: #
     <p class="hint" id="foto-iw-h" hidden>Le foto Inwit restano pulite, senza GPS. Quando hai finito tocca <b>Salva in galleria</b>: su iPhone scegli <b>Salva immagini</b>, su Android <b>Salva</b> o <b>Galleria</b>.</p>
     <div class="cam" id="cam" hidden>
       <video id="cam-v" playsinline muted autoplay></video><div class="cam-flash" id="cam-flash"></div>
-      <div class="cam-top"><button type="button" class="cam-x" id="cam-x" aria-label="Torna alla scheda">✕</button><div class="cam-info"><b id="cam-tit">Foto Wind</b><p class="hint" id="foto-pos">Cerco la posizione…</p><div class="cam-cod" id="cam-cod" hidden><input id="cam-cod-in" placeholder="Codice sito, es. NU009" autocapitalize="characters" autocomplete="off" spellcheck="false" enterkeyhint="done" aria-label="Codice sito"></div></div></div>
+      <div class="cam-top"><button type="button" class="cam-x" id="cam-x" aria-label="Torna alla scheda">✕</button><div class="cam-info"><b id="cam-tit">Foto Wind</b><p class="hint" id="foto-pos">Cerco la posizione…</p></div></div>
+      <div class="cam-cod" id="cam-cod" role="alertdialog" aria-labelledby="cam-cod-t" hidden><div class="cam-cod-box"><b id="cam-cod-t">Manca il codice sito</b><p>Non sei a un sito e nella scheda non c'è il codice. Scrivilo nella scheda, poi torna a fare le foto.</p><button type="button" class="btn pri" id="cam-cod-vai">✍️ Scrivi il codice sito</button><button type="button" class="btn sm" id="cam-cod-no">Annulla</button></div></div>
       <button type="button" class="cam-ultima" id="cam-ultima" aria-label="Apri la galleria" hidden><img id="cam-ultima-img" alt=""></button>
       <button type="button" class="cam-nat" id="cam-nat" aria-label="Fotocamera del telefono">📱</button>
       <button class="cam-shot" id="cam-shot" aria-label="Scatta foto"></button>
@@ -3337,20 +3339,13 @@ function fotoPosText() {
     + (s ? " · sei a " + fmtKm(s.d) + " da " + sitoTag(s.n, s.c) + ": le foto vanno lì" : " · nessun sito qui: le foto vanno in " + (sitoTag(dati.sito, dati.codice) || "scrivi il codice sito"));
   camCodVedi();
 }
-// no site under your feet: the code is typed by hand right on the camera (same field as Compila)
-function camCodVedi() {
-  const fix = fotoFix && Date.now() - fotoFix.t <= 120000 ? fotoFix : null;
-  const serve = fotoG === "Wind" && !fotoForza && !(fix && nearestSite(fix, "Wind"));
-  $("cam-cod").hidden = !serve;
-  if (serve && document.activeElement !== $("cam-cod-in")) $("cam-cod-in").value = dati.codice || "";
-}
-$("cam-cod-in").addEventListener("input", () => {
-  const f = $("f_codice"), v = $("cam-cod-in").value.toUpperCase().replace(/\s+/g, "");
-  if ($("cam-cod-in").value !== v) $("cam-cod-in").value = v;
-  f.value = v; f.dispatchEvent(new Event("input", { bubbles: true }));
-});
-$("cam-cod-in").addEventListener("change", () => { $("f_codice").dispatchEvent(new Event("change", { bubbles: true })); fotoPosText(); });
-$("cam-cod-in").addEventListener("keydown", e => { if (e.key === "Enter") $("cam-cod-in").blur(); });
+// no site under your feet and no code in the scheda: a warning that takes you back to the scheda (Mirko)
+function camCodVedi() { $("cam-cod").hidden = true; }
+$("cam-cod-vai").onclick = () => {
+  $("cam-cod").hidden = true; showTab("compila");
+  setTimeout(() => { const f = $("f_codice"), fl = f.closest(".f"); f.scrollIntoView({ block: "center" }); fl.classList.remove("flash"); void fl.offsetWidth; fl.classList.add("flash"); f.focus(); }, 300);
+};
+$("cam-cod-no").onclick = () => { $("cam-cod").hidden = true; };
 function fotoStart() {
   if (!navigator.geolocation) { $("foto-pos").textContent = "Questo telefono non dà la posizione: la foto avrà solo data e ora."; return; }
   if (fotoWatch !== null) return;
@@ -3516,8 +3511,7 @@ function fotoSitoOk() {
   if (fotoG === "Inwit") { if (iwSitoOra()) return true; toast("Prima scegli il sito Inwit: senza codice sito niente foto"); return false; }
   const fix = fotoFix && Date.now() - fotoFix.t <= 120000 ? fotoFix : null;
   if (fotoForza || (fix && nearestSite(fix, "Wind")) || String(dati.codice || "").trim()) return true;
-  camCodVedi(); toast("Nessun sito qui: scrivi il codice sito in alto");
-  if (!$("cam-cod").hidden) $("cam-cod-in").focus(); return false;
+  $("cam-cod").hidden = false; return false;
 }
 $("foto-shot-file").addEventListener("click", e => { if (!fotoSitoOk()) e.preventDefault(); });
 $("cam-shot").onclick = async () => {
