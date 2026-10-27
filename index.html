@@ -716,6 +716,9 @@ kbd { display: inline-block; padding: 1px 7px; border-radius: 6px; background: #
 .fsel { flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--line); background: var(--surface); display: inline-grid; place-items: center; font: 800 .8rem var(--f-body); color: #FFFFFF; cursor: pointer }
 .fsel.on { background: var(--accent); border-color: var(--accent) }
 #foto-list:not(.selecting) .fsel { opacity: .55 }
+.finv { flex-shrink: 0; width: 34px; height: 30px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface); display: inline-grid; place-items: center; font-size: .95rem; cursor: pointer }
+.fday .finv { margin-left: auto; width: 30px; height: 26px; font-size: .85rem }
+#foto-list.selecting .finv { display: none }
 .meteo { justify-self: start; margin-top: 2px }
 .qui-row { display: flex; gap: 8px; flex-wrap: wrap }
 .scelte { display: flex; gap: 8px; flex-wrap: wrap }
@@ -3248,9 +3251,9 @@ async function renderFoto() {
   $("foto-list").innerHTML = all.length && !vis.length ? `<div class="empty"><b>Nessuna foto</b>Nessun sito corrisponde a “${esc($("fq").value.trim())}”.</div>`
     : all.length ? vis.map(([s, ys]) => {
       const tutte = [...ys.values()].flatMap(ds => [...ds.values()].flat()), anni = [...ys.keys()];
-      return `<details class="fgrp" data-g="${esc(s)}"${fotoAperti.has(s) || fq ? " open" : ""}><summary><span class="fsel" role="button" tabindex="0" aria-label="Seleziona tutta la cartella"></span><b>📁 ${esc(s)}<span class="gd">${anni.length > 1 ? "Anni " + anni.join(", ") : "Anno " + anni[0]}</span></b><small>${conta(tutte)}</small></summary>`
-        + [...ys].map(([y, ds]) => `<details class="fanno" data-g="${esc(s + "|" + y)}"${fotoAperti.has(s + "|" + y) || fq ? " open" : ""}><summary><span class="fsel" role="button" tabindex="0" aria-label="Seleziona tutta la cartella"></span>📅 ${y}<small>${conta([...ds.values()].flat())}</small></summary>`
-          + [...ds].map(([d, fs]) => `<div class="fday"><span class="fsel" role="button" tabindex="0" aria-label="Seleziona tutta la cartella"></span>${d}/${y}</div><div class="fg">${fs.map(thumb).join("")}</div>`).join("") + `</details>`).join("")
+      return `<details class="fgrp" data-g="${esc(s)}"${fotoAperti.has(s) || fq ? " open" : ""}><summary><span class="fsel" role="button" tabindex="0" aria-label="Seleziona tutta la cartella"></span><b>📁 ${esc(s)}<span class="gd">${anni.length > 1 ? "Anni " + anni.join(", ") : "Anno " + anni[0]}</span></b><small>${conta(tutte)}</small><span class="finv" role="button" tabindex="0" aria-label="Invia le foto della cartella">📤</span></summary>`
+        + [...ys].map(([y, ds]) => `<details class="fanno" data-g="${esc(s + "|" + y)}"${fotoAperti.has(s + "|" + y) || fq ? " open" : ""}><summary><span class="fsel" role="button" tabindex="0" aria-label="Seleziona tutta la cartella"></span>📅 ${y}<small>${conta([...ds.values()].flat())}</small><span class="finv" role="button" tabindex="0" aria-label="Invia le foto della cartella">📤</span></summary>`
+          + [...ds].map(([d, fs]) => `<div class="fday"><span class="fsel" role="button" tabindex="0" aria-label="Seleziona tutta la cartella"></span>${d}/${y}<span class="finv" role="button" tabindex="0" aria-label="Invia le foto della cartella">📤</span></div><div class="fg">${fs.map(thumb).join("")}</div>`).join("") + `</details>`).join("")
         + `</details>`; }).join("")
     : '<div class="empty"><b>Nessuna foto ancora</b>Tocca “Scatta foto”: data, ora, GPS e sito vengono scritti sulla foto.</div>';
   selUI();
@@ -3297,6 +3300,16 @@ function fselIds(t) {
   return box ? [...box.querySelectorAll("button[data-id]")].map(b => b.dataset.id) : [];
 }
 $("foto-list").addEventListener("click", async e => {
+  // every folder ready to send: one tap, all its photos to WhatsApp / mail / File, caption "NU009 Ottana" (code first, like the folder)
+  const inv = e.target.closest(".finv");
+  if (inv) { e.preventDefault(); e.stopPropagation();
+    const ids = new Set(fselIds(inv)), fs = fotoLast.filter(f => ids.has(f.id)); if (!fs.length) return;
+    const files = fs.map(f => new File([f.blob], nomeOut(f), { type: "image/jpeg" }));
+    if (!(navigator.canShare && navigator.canShare({ files }))) { toast("Da qui non si può inviare: usa Seleziona e Salva"); return; }
+    const tag = [String(fs[0].code || "").trim().toUpperCase(), sitoTag(fs[0].sito, "")].filter(Boolean).join(" ");
+    try { await navigator.share(tag ? { files, text: tag } : { files }); bigOk(fs.length + " foto inviate"); }
+    catch (er) { if (!(er && er.name === "AbortError")) toast("Invio non riuscito, riprova"); }
+    return; }
   const t = e.target.closest(".fsel");
   if (t) { e.preventDefault(); e.stopPropagation();
     const ids = fselIds(t), tutte = selMode && ids.every(id => sel.has(id)); selMode = true;
