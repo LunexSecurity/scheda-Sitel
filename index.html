@@ -1247,6 +1247,8 @@ function festa() {
 /* ---------- draft (this phone only) ---------- */
 const DRAFT = "bts-scheda-v2-bozza";
 function saveDraft() { try { localStorage.setItem(DRAFT, JSON.stringify({ dati, docId, savedAt })); } catch (e) {} }
+// ask the phone to never clean up the schede and photos on its own when space runs low
+try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch (e) {}
 function loadDraft() {
   try { const d = JSON.parse(localStorage.getItem(DRAFT) || "null"); if (d && d.dati) { dati = d.dati; docId = d.docId || null; savedAt = d.savedAt || null; return true; } } catch (e) {}
   return false;
