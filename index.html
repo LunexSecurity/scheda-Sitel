@@ -1027,7 +1027,7 @@ const SECTIONS = [
     { k: "scala", l: "Scala", scelte: ["Söll", "Faba", "Skylotec", "Guardacorpo"] },
     { k: "ballatoio", l: "Ballatoio", scelte: ["Sì", ["No", "/"]] },
     { k: "stralli", l: "Stralli", scelte: ["Sì", ["No", "/"]] },
-    { k: "altezza", l: "Altezza", u: "m", num: 1, misura: 1 },
+    { k: "altezza", l: "Altezza", u: "m", num: 1, intero: 1, misura: 1 },
   ]},
   { id: "note", t: "Note", sub: "Indicare sempre tutte le anomalie riscontrate e i materiali utilizzati", f: [
     { k: "note", l: "Note", area: 1, rapide: ["Scaricatori OK", "Scaricatori KO", "Batterie KO"] },
@@ -1130,7 +1130,7 @@ function fieldHTML(f) {
     </div>${PREV}</div>`;
   if (f.area) return `<div class="f">${f.rapide ? `<div class="scelte rapide" data-k="${f.k}">${f.rapide.map(x => `<button type="button" data-r="${esc(x)}">${esc(x)}</button>`).join("")}</div>` : ""}<textarea id="${id}" data-k="${f.k}" aria-label="${esc(f.l)}" placeholder="Anomalie riscontrate, materiali utilizzati…"></textarea>${PREV}</div>`;
   const type = f.type || "text";
-  const im = f.num ? ` inputmode="decimal"` : "";
+  const im = f.intero ? ` inputmode="numeric" pattern="[0-9]*"` : f.num ? ` inputmode="decimal"` : "";
   const sm = SCAN_METER.test(f.k) ? "meter" : "";  // Mirko: camera only on the meter (battery label reading removed, it misread too much)
   // Contatore: also a live QR reader, no photo to take
   const qr = f.k === "contatore" ? `<button type="button" class="scan-b qr-b" data-qr="1" aria-label="Leggi il QR dal vivo">QR</button>` : "";
@@ -1248,7 +1248,9 @@ function festa() {
 
 /* ---------- draft (this phone only) ---------- */
 const DRAFT = "bts-scheda-v2-bozza";
-function saveDraft() { try { localStorage.setItem(DRAFT, JSON.stringify({ dati, docId, savedAt })); } catch (e) {} }
+// heights in whole metres, never a comma (Mirko): from the keyboard, the voice or the tilt measure
+function altezzaIntera() { const v = String(dati.altezza ?? "").trim(); if (!/[.,]/.test(v)) return; const n = parseFloat(v.replace(",", ".")); dati.altezza = isFinite(n) ? String(Math.round(n)) : v.replace(/[.,]/g, ""); }
+function saveDraft() { altezzaIntera(); try { localStorage.setItem(DRAFT, JSON.stringify({ dati, docId, savedAt })); } catch (e) {} }
 // ask the phone to never clean up the schede and photos on its own when space runs low
 try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch (e) {}
 function loadDraft() {
@@ -1466,8 +1468,13 @@ async function copyText(txt) {
 }
 
 /* ---------- events ---------- */
+// heights: a comma or dot is refused at the key, so "30,5" can never turn into 305
+$("form").addEventListener("beforeinput", e => {
+  if (e.target.dataset && e.target.dataset.k === "altezza" && e.data && /\D/.test(e.data)) { e.preventDefault(); toast("Altezza in metri interi, senza virgola"); }
+});
 $("form").addEventListener("input", e => {
   const k = e.target.dataset.k; if (!k) return;
+  if (k === "altezza" && /\D/.test(e.target.value)) e.target.value = e.target.value.replace(/\D/g, "");
   dati[k] = e.target.value;
   if (k === "tecnico") { try { localStorage.setItem("bts-tecnico", e.target.value); } catch (er) {} }
   saveDraft(); updateCounts();
@@ -3718,7 +3725,7 @@ function misCalcola() {
   if (misCima == null || misBase == null || !(d > 0)) { $("mis-ris").textContent = ""; $("mis-usa").disabled = true; return; }
   const r = x => Math.tan(x * Math.PI / 180), h = d * (r(misCima) - r(misBase));
   if (!(h > 0) || h > 200) { $("mis-ris").textContent = "Misura strana: rifai Cima e Base"; $("mis-usa").disabled = true; return; }
-  $("mis-ris").textContent = h.toFixed(1).replace(".", ",") + " m"; $("mis-usa").disabled = false; $("mis-usa").dataset.h = h.toFixed(1);
+  $("mis-ris").textContent = Math.round(h) + " m"; $("mis-usa").disabled = false; $("mis-usa").dataset.h = h.toFixed(1);
 }
 async function misApri() {
   // iPhone asks permission for the motion sensors, and only from a tap
@@ -3736,7 +3743,7 @@ $("mis-x").onclick = misChiudi;
 $("mis-cima").onclick = () => { const a = misOra(); if (a == null) return; misCima = a; if (navigator.vibrate) navigator.vibrate(20); misCalcola(); };
 $("mis-base").onclick = () => { const a = misOra(); if (a == null) return; misBase = a; if (navigator.vibrate) navigator.vibrate(20); misCalcola(); };
 $("mis-d").addEventListener("input", misCalcola);
-$("mis-usa").onclick = () => { dati.altezza = $("mis-usa").dataset.h.replace(".", ","); saveDraft(); fillForm(); misChiudi(); bigOk("Altezza " + dati.altezza + " m"); };
+$("mis-usa").onclick = () => { dati.altezza = String(Math.round(parseFloat($("mis-usa").dataset.h))); saveDraft(); fillForm(); misChiudi(); bigOk("Altezza " + dati.altezza + " m"); };
 $("form").addEventListener("click", e => { if (e.target.closest("#btn-mis")) misApri(); });
 /* ---------- Inwit: no form, only the site, its GPS photos and the visit in the storico ---------- */
 const IW_BOZZA = "bts-inwit-bozza";
