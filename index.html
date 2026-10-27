@@ -353,7 +353,6 @@ html.lite .ch-meteo i { animation: none !important } html.lite .ch-meteo .goccia
 .ch-foto .kb-zoom { animation: kbZoom 9.6s linear both } @keyframes kbZoom { from { transform: scale(1.05) } to { transform: scale(1.4) translateY(4%) } }
 .ch-foto .kb-largo { animation: kbLargo 9.6s linear both } @keyframes kbLargo { from { transform: scale(1.45) translate(-4%, 3%) } to { transform: scale(1.08) } }
 .ch-foto.ok img.su { filter: brightness(1.12) saturate(1.1); transition: filter 1.2s, opacity 1.6s }
-html.lite .ch-foto img { animation: none !important; transform: scale(1.1) }
 /* 3D drone shot from real photos: tower cut out, live sky behind, different depths (parallax) */
 .ch-foto .sl { position: absolute; inset: 0; opacity: 0; transition: opacity 1.6s ease }
 .ch-foto .sl.su { opacity: 1 }
@@ -376,8 +375,8 @@ html.lite .ch-foto img { animation: none !important; transform: scale(1.1) }
 .ch-foto .sl .f1 { animation: fl1 10.8s ease-in-out both } @keyframes fl1 { from { left: 62%; top: 8% } to { left: 18%; top: 44% } }
 .ch-foto .sl .f2 { animation: fl2 10.8s ease-in-out both } @keyframes fl2 { from { left: 52%; top: 18% } to { left: 30%; top: 60% } }
 .ch-foto.ok .sl.su .torre { filter: drop-shadow(0 0 18px rgba(92,200,188,.55)) brightness(1.08) }
-html.lite .ch-foto * { animation: none !important } html.lite .ch-foto .torre { transform: scale(1.15) }
-@media (prefers-reduced-motion: reduce) { .ch-foto * { animation-duration: 40s !important } }
+/* the drone move of the tower stays on slow phones too (only a transform, cheap); just clouds and flares go */
+html.lite .ch-foto .nb, html.lite .ch-foto .f1, html.lite .ch-foto .f2 { animation: none !important; display: none }
 /* cartoon site behind the code: the drawing moves down to the ground and back up */
 .ch-cartoon { position: absolute; inset: 0; overflow: hidden; z-index: 0; pointer-events: none }
 .ch-cartoon svg { display: block; width: 100%; height: auto; animation: ccGiu 50s ease-in-out infinite }
