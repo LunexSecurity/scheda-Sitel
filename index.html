@@ -602,7 +602,6 @@ kbd { display: inline-block; padding: 1px 7px; border-radius: 6px; background: #
   <label for="chiave-in">Codice</label><input id="chiave-in" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="es. parola-parola-1234">
   <p class="hint" id="chiave-err" hidden></p>
   <button class="btn go" type="submit" id="chiave-go">Sblocca</button>
-  <button class="btn" type="button" id="chiave-dopo">Più tardi (senza elenco siti)</button>
 </form></div>
 <div class="login" id="login" hidden><div class="aura a1"></div><div class="aura a2"></div><form class="login-in" id="login-f">
   <div class="login-logo"><img id="login-img" alt="Sitel"></div>
@@ -1760,7 +1759,6 @@ if (!SITI_TXT && window.crypto && crypto.subtle) (async () => {
   // lists updated since last time: the key kept on this phone opens the new ones by itself
   let k = null; try { k = localStorage.getItem("bts-siti-k"); } catch (e) {}
   if (k) { try { await sitiApri(await crypto.subtle.importKey("raw", b64u8(k), "AES-GCM", false, ["decrypt"])); location.reload(); return; } catch (e) {} }
-  try { if (sessionStorage.getItem("bts-chiave-dopo")) return; } catch (e) {}
   $("chiave-img").src = typeof SPLASH_LOGO !== "undefined" ? SPLASH_LOGO : document.querySelector(".logo img").src;
   $("chiave").hidden = false; setTimeout(() => $("chiave-in").focus(), 300);
 })();
@@ -1776,7 +1774,6 @@ $("chiave-f").onsubmit = async e => {
     $("chiave-err").hidden = false; $("chiave-err").textContent = "Codice sbagliato, riprova."; $("chiave-go").disabled = false; $("chiave-go").textContent = "Sblocca";
   }
 };
-$("chiave-dopo").onclick = () => { try { sessionStorage.setItem("bts-chiave-dopo", "1"); } catch (e) {} $("chiave").hidden = true; };
 const GRUPPI = ["Wind", "Inwit"];
 const SITO_BY_CODE = new Map(SITI.flatMap(s => s.o ? [[s.c, s], [s.o, s]] : [[s.c, s]]));
 function siteCode(v) {
