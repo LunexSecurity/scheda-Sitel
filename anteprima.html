@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SITEL anteprima</title>
+<link rel="icon" href="icons/favicon.png">
+<style>
+/* Preview on the PC: the live app inside an iPhone and an Android frame, always the latest version */
+:root { --bg: #0B1C40; --ink: #FFFFFF; --muted: #A9B8D6; --btn: rgba(255,255,255,.12); --line: rgba(255,255,255,.25) }
+* { box-sizing: border-box }
+body { margin: 0; min-height: 100vh; background: radial-gradient(circle at 50% 0, #1D4C9A, #16336D 45%, #0B1C40); color: var(--ink); font: 15px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif }
+header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 14px 20px }
+header h1 { margin: 0; font-size: 1.2rem; letter-spacing: .04em; flex: 1 }
+header h1 small { display: block; font-weight: 400; color: var(--muted); font-size: .8rem; letter-spacing: 0 }
+button, select { font: inherit; color: var(--ink); background: var(--btn); border: 1px solid var(--line); border-radius: 10px; padding: 8px 14px; cursor: pointer }
+button:hover { background: rgba(255,255,255,.2) }
+button.on { background: #FFFFFF; color: #16336D }
+main { display: flex; justify-content: center; align-items: flex-start; gap: 48px; padding: 8px 20px 40px; flex-wrap: wrap }
+figure { margin: 0; display: grid; justify-items: center; gap: 10px }
+figcaption { color: var(--muted); font-size: .85rem }
+.scala { transform-origin: top center }
+/* iPhone 15: 393 x 852 */
+.iphone { width: 393px; height: 852px; border-radius: 56px; padding: 14px; background: #1B1B1F; box-shadow: 0 0 0 2px #4A4A52, 0 30px 80px rgba(0,0,0,.55); position: relative }
+.iphone .schermo { width: 100%; height: 100%; border-radius: 44px; overflow: hidden; position: relative; background: #FFFFFF }
+.iphone .isola { position: absolute; top: 25px; left: 50%; width: 120px; height: 34px; margin-left: -60px; border-radius: 20px; background: #000000; z-index: 2 }
+.iphone .home { position: absolute; bottom: 22px; left: 50%; width: 130px; height: 5px; margin-left: -65px; border-radius: 3px; background: rgba(0,0,0,.75); z-index: 2 }
+.iphone iframe { position: absolute; top: 54px; left: 0; width: 100%; height: calc(100% - 54px - 28px) }
+.iphone .barra-top { position: absolute; inset: 0 0 auto; height: 54px; background: #16336D }
+/* Android (Pixel 8): 412 x 915 */
+.android { width: 412px; height: 915px; border-radius: 40px; padding: 12px; background: #202124; box-shadow: 0 0 0 2px #5F6368, 0 30px 80px rgba(0,0,0,.55); position: relative }
+.android .schermo { width: 100%; height: 100%; border-radius: 30px; overflow: hidden; position: relative; background: #FFFFFF }
+.android .foro { position: absolute; top: 12px; left: 50%; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: #000000; z-index: 2 }
+.android .barra-top { position: absolute; inset: 0 0 auto; height: 36px; background: #16336D }
+.android .nav { position: absolute; inset: auto 0 0; height: 30px; background: #F1F3F4; display: flex; justify-content: center; align-items: center }
+.android .nav i { width: 110px; height: 4px; border-radius: 2px; background: #5F6368 }
+.android iframe { position: absolute; top: 36px; left: 0; width: 100%; height: calc(100% - 36px - 30px) }
+iframe { border: 0; background: #FFFFFF }
+.ora { position: absolute; z-index: 3; color: #FFFFFF; font-weight: 600; font-size: 14px }
+.iphone .ora { top: 20px; left: 36px } .android .ora { top: 9px; left: 22px; font-size: 13px }
+.nota { max-width: 860px; margin: 0 auto; padding: 0 20px 30px; color: var(--muted); font-size: .85rem; text-align: center }
+@media (max-width: 900px) { main { gap: 24px } }
+</style>
+</head>
+<body>
+<header>
+  <h1>SITEL · anteprima telefoni<small>Carica sempre l'ultima versione pubblicata dell'app</small></h1>
+  <button type="button" id="ricarica">↻ Ricarica</button>
+  <button type="button" id="apri-ios">📱 Finestra iPhone</button><button type="button" id="apri-and">🤖 Finestra Android</button>
+  <span>Zoom</span>
+  <button type="button" data-z="0.6">60%</button><button type="button" data-z="0.75">75%</button><button type="button" data-z="1">100%</button><button type="button" data-z="auto" class="on">Adatta</button>
+</header>
+<main>
+  <figure id="fig-ios"><div class="scala" id="s-ios"><div class="iphone"><div class="schermo"><div class="barra-top"></div><span class="ora" data-ora></span><div class="isola"></div><iframe id="f-ios" title="iPhone" src="./"></iframe><div class="home"></div></div></div></div><figcaption>iPhone 15 · 393 × 852</figcaption></figure>
+  <figure id="fig-and"><div class="scala" id="s-and"><div class="android"><div class="schermo"><div class="barra-top"></div><span class="ora" data-ora></span><div class="foro"></div><iframe id="f-and" title="Android" src="./"></iframe><div class="nav"><i></i></div></div></div></div><figcaption>Android (Pixel 8) · 412 × 915</figcaption></figure>
+</main>
+<p class="nota">I due telefoni sono la vera app, puoi toccare e compilare con il mouse. Usano la stessa memoria di questo browser, quindi una scheda salvata in uno compare anche nell'altro. Fotocamera, GPS e microfono dipendono dal PC: per provarli davvero serve il telefono.</p>
+<script>
+// ?tel=ios or ?tel=android: one phone only, in its own window
+const tel = new URLSearchParams(location.search).get("tel");
+if (tel === "ios" || tel === "android") {
+  document.getElementById(tel === "ios" ? "fig-and" : "fig-ios").remove();
+  document.title = "SITEL " + (tel === "ios" ? "iPhone" : "Android");
+  for (const id of ["apri-ios", "apri-and"]) document.getElementById(id).remove();
+  document.querySelector("header h1 small").remove();
+  document.querySelector("header h1").firstChild.textContent = tel === "ios" ? "SITEL · iPhone" : "SITEL · Android";
+}
+const finestra = t => window.open("anteprima.html?tel=" + t, "sitel-" + t, "popup,width=" + (t === "ios" ? 520 : 540) + ",height=1000");
+if (!tel) { document.getElementById("apri-ios").onclick = () => finestra("ios"); document.getElementById("apri-and").onclick = () => finestra("android"); }
+const z = { v: "auto" };
+function adatta() {
+  const h = innerHeight - document.querySelector("header").offsetHeight - 50, w = innerWidth;
+  const due = !tel; let k = z.v === "auto" ? Math.min(1, h / 915, (w - 100) / (due ? 393 + 412 + 48 : 412)) : +z.v;
+  if (z.v === "auto" && w < 900) k = Math.min(1, h / 915, (w - 40) / 412);
+  for (const [id, H, W] of [["s-ios", 852, 393], ["s-and", 915, 412]]) { const s = document.getElementById(id); if (!s) continue; s.style.transform = "scale(" + k + ")"; s.parentNode.style.height = (H * k + 30) + "px"; s.parentNode.style.width = (W * k) + "px"; }
+}
+document.querySelectorAll("[data-z]").forEach(b => b.onclick = () => { z.v = b.dataset.z; document.querySelectorAll("[data-z]").forEach(x => x.classList.toggle("on", x === b)); adatta(); });
+addEventListener("resize", adatta); adatta();
+// a fresh copy of the app each time, never the old one from the cache
+document.getElementById("ricarica").onclick = () => { const v = "./?v=" + Date.now(); for (const id of ["f-ios", "f-and"]) { const f = document.getElementById(id); if (f) f.src = v; } };
+const ora = () => { const d = new Date(), t = String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); document.querySelectorAll("[data-ora]").forEach(e => e.textContent = t); };
+ora(); setInterval(ora, 20000);
+</script>
+</body>
+</html>
