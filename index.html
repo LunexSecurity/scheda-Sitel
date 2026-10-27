@@ -306,6 +306,12 @@ html.lite .login.chiave { animation: none } html.lite .ch-luce path { animation-
 /* wrong code: the logo shakes */
 .ch-wrap.scuoti { animation: chScuoti .55s }
 @keyframes chScuoti { 15%, 55% { transform: translateX(-12px) } 35%, 75% { transform: translateX(10px) } 90% { transform: translateX(-4px) } }
+/* everything transparent, in the middle of the island */
+.login.chiave { display: flex; align-items: center; justify-content: center }
+.login.chiave .login-in { background: transparent; border-color: transparent; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; width: min(100%, 290px); margin: auto; text-align: center; gap: 10px }
+.login.chiave .ch-logo { padding: 6px 0 } .login.chiave .ch-wrap { width: 100% }
+.login.chiave h2, .login.chiave .hint, .login.chiave label { text-align: center; text-shadow: 0 1px 8px rgba(0,0,0,.45) }
+.login.chiave input { background: rgba(255,255,255,.08); text-align: center }
 html.lite .ch-radio, html.lite .ch-onda { animation: none !important } html.lite .ch-radio { display: none }
 @media (prefers-reduced-motion: reduce) { .ch-radio { display: none } .ch-onda, .ch-costa, .ch-punti circle, .login.chiave { animation-duration: .01s !important; animation-iteration-count: 1 !important } }
 .login { position: fixed; inset: 0; z-index: 45; background: radial-gradient(120% 80% at 50% 0%, #1D4C9A 0%, #16336D 50%, #0B1C40 100%); overflow: auto; padding: calc(24px + env(safe-area-inset-top, 0px)) 20px calc(24px + env(safe-area-inset-bottom, 0px)) }
