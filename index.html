@@ -450,6 +450,14 @@ html.lite .ch-isola { animation: none } html.lite .ch-radio, html.lite .ch-onda 
 .call-ks { display: flex; gap: 14px; margin-top: 10px }
 .call-ks button { width: 76px; height: 76px; border-radius: 50%; border: 0; background: rgba(255,255,255,.16); color: #FFFFFF; font-size: 1.4rem; cursor: pointer; display: grid; place-content: center; gap: 2px }
 .call-ks small { font-size: .68rem }
+.call-ks { gap: 10px } .call-ks button { width: 70px; height: 70px }
+.call-el { position: fixed; inset: 0; z-index: 5; background: #0F2650; display: flex; flex-direction: column; text-align: left; padding: calc(12px + env(safe-area-inset-top, 0px)) 14px calc(12px + env(safe-area-inset-bottom, 0px)) } .call-el[hidden] { display: none }
+.call-el-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px } .call-el-top b { font: 700 1.2rem var(--f-display) }
+.call-el-l { overflow: auto; flex: 1; display: grid; gap: 6px; align-content: start }
+.call-el-l h4 { margin: 10px 0 2px; font: 700 .8rem var(--f-body); letter-spacing: .05em; text-transform: uppercase; color: #8FE3DA }
+.call-el-l button { display: flex; justify-content: space-between; gap: 10px; width: 100%; min-height: 46px; padding: 10px 12px; border-radius: 12px; border: 0; background: rgba(255,255,255,.1); color: #FFFFFF; font: 600 .95rem var(--f-body); text-align: left; cursor: pointer }
+.call-el-l button small { color: rgba(255,255,255,.65); font-weight: 500; max-width: 45%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.call-el-l button.note { background: #2A7570; font-size: 1.05rem }
 .call-end { width: 72px; height: 72px; border-radius: 50%; border: 0; background: #D93A32; color: #FFFFFF; font-size: 1.8rem; transform: rotate(135deg); cursor: pointer; margin-top: 8px }
 .call-modo { display: flex; gap: 4px; padding: 3px; border-radius: 20px; background: rgba(255,255,255,.12); align-self: center }
 .call-modo button { border: 0; border-radius: 17px; padding: 7px 12px; background: transparent; color: #FFFFFF; font: 600 .8rem var(--f-body); cursor: pointer; opacity: .75 }
@@ -966,7 +974,8 @@ kbd { display: inline-block; padding: 1px 7px; border-radius: 6px; background: #
   <div class="call-h" id="call-h"></div>
   <div class="call-wave" id="call-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
   <button type="button" class="call-ptt" id="call-ptt" aria-label="Microfono"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg><small>Tocca e parla</small></button>
-  <div class="call-ks"><button type="button" id="call-back">↩<small>Indietro</small></button><button type="button" id="call-rep">🔁<small>Ripeti</small></button><button type="button" id="call-skip">⏭<small>Salta</small></button></div>
+  <div class="call-ks"><button type="button" id="call-back">↩<small>Indietro</small></button><button type="button" id="call-rep">🔁<small>Ripeti</small></button><button type="button" id="call-skip">⏭<small>Salta</small></button><button type="button" id="call-el-b">📋<small>Elenco</small></button></div>
+  <div class="call-el" id="call-el" hidden><div class="call-el-top"><b>Cosa vuoi dettare?</b><button type="button" class="fv-x" id="call-el-x" aria-label="Chiudi">✕</button></div><div class="call-el-l" id="call-el-l"></div></div>
   <button type="button" class="call-end" id="call-end" aria-label="Chiudi chiamata">📞</button>
   <p class="call-tip">Con "Ascolta da solo" dopo ogni domanda parli e basta; con "Tocca e parla" prima tocchi il tasto. Quando smetti di parlare si ferma da solo. Per passare alla voce dopo dì "sì". Puoi dire anche "lascia libero", "indietro", "ripeti" o "fine".</p>
 </div></div>
@@ -2719,7 +2728,7 @@ function callEnd(quiet) {
   try { speechSynthesis.cancel(); } catch (e) {}
   if (c.rec) { try { c.rec.onend = null; c.rec.abort(); } catch (e) {} }
   if (c.lock) c.lock.release().catch(() => {});
-  $("call").hidden = true; $("call").classList.remove("ascolto");
+  $("call").hidden = true; $("call-el").hidden = true; $("call").classList.remove("ascolto");
   toast(c.fatti ? c.fatti + (c.fatti === 1 ? " voce compilata in chiamata" : " voci compilate in chiamata") : "Chiamata chiusa");
 }
 const callTap = fn => () => { if (!call) return; call.ascolta = false; fn(); };
@@ -2733,6 +2742,25 @@ $("call-modo").addEventListener("click", e => { const b = e.target.closest("butt
 callModoUI();
 $("call-ptt").addEventListener("contextmenu", e => e.preventDefault());
 $("call-skip").onclick = callTap(() => { call.pend = null; call.i++; callAsk(); });
+// list of every field (Note first): tap one and the call jumps there, also to change a value already written
+$("call-el-b").onclick = () => {
+  if (!call) return; call.ascolta = false; try { speechSynthesis.cancel(); } catch (e) {}
+  for (const k of ["lento", "zitto", "elab", "muto8"]) clearTimeout(call[k]);
+  if (call.rec) { try { call.rec.onend = null; call.rec.abort(); } catch (e) {} call.rec = null; }
+  const nota = FIELDS.find(f => f.k === "note"), riga = f => { const v = String(dati[f.k] || "").trim();
+    return `<button type="button" data-k="${f.k}"${f.k === "note" ? ' class="note"' : ""}><span>${esc(f.k === "note" ? "📝 Note" : callLabel(f))}</span><small>${v ? "✓ " + esc(v) : ""}</small></button>`; };
+  let html = nota ? riga(nota) : "", sez = null;
+  for (const f of FIELDS) { if (f.k === "note") continue; if (f.sec !== sez) { sez = f.sec; html += `<h4>${esc(sez.t)}</h4>`; } html += riga(f); }
+  $("call-el-l").innerHTML = html; $("call-el").hidden = false; $("call-el-l").scrollTop = 0;
+};
+$("call-el-x").onclick = () => { $("call-el").hidden = true; if (call) callAsk(); };
+$("call-el-l").addEventListener("click", e => {
+  const b = e.target.closest("button[data-k]"); if (!b || !call) return;
+  const f = FIELDS.find(x => x.k === b.dataset.k); if (!f) return;
+  // asked now; if it was waiting further on in the list it is not asked twice
+  const dopo = call.list.findIndex((x, j) => j >= call.i && x.k === f.k); if (dopo >= 0) call.list.splice(dopo, 1);
+  call.list.splice(call.i, 0, f); call.pend = null; $("call-el").hidden = true; callAsk();
+});
 $("call-back").onclick = callTap(() => { call.pend = null; call.i = Math.max(0, call.i - 1); call.lastSec = null; callAsk(); });
 $("call-rep").onclick = callTap(() => { call.pend = null; call.lastSec = null; callAsk(); });
 /* ---------- site from where the phone is: the nearest site goes in Sito and Codice ---------- */
