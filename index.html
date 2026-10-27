@@ -628,6 +628,12 @@ body.modo-inwit .foto-fab { background: linear-gradient(135deg, #1F5F5B, #2A9D93
 .cam-info .hint { margin: 2px 0 0; color: rgba(255,255,255,.85); font-size: .78rem }
 .cam-cod { position: fixed; inset: 0; z-index: 95; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(0,0,0,.6) } .cam-cod[hidden] { display: none }
 .cam-cod-box { width: 100%; max-width: 340px; background: var(--surface); color: var(--ink); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 10px; text-align: center }
+.tt { position: fixed; inset: 0; z-index: 1000 } html.lite .tt-hole { box-shadow: 0 0 0 9999px rgba(5,12,25,.72) !important } html.lite .tt-card { box-shadow: 0 10px 30px rgba(0,0,0,.35) !important } .tt[hidden] { display: none }
+.tt-hole { position: fixed; border-radius: 12px; box-shadow: 0 0 0 9999px rgba(5,12,25,.72); outline: 3px solid #5ED3C9; transition: all .25s ease; pointer-events: none }
+.tt-card { position: fixed; left: 16px; right: 16px; max-width: 420px; margin: 0 auto; background: var(--surface); color: var(--ink); border-radius: 16px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.35) }
+.tt-card small { color: var(--muted); font-weight: 700 } .tt-card b { display: block; font: 700 1.2rem var(--f-display); margin: 2px 0 4px } .tt-card p { margin: 0 0 12px; line-height: 1.4 }
+.tt-b { display: flex; gap: 8px; justify-content: flex-end } .tt-b .btn.pri { flex: 0 0 auto; min-width: 120px }
+.tt-go { width: 100%; margin: 4px 0 10px }
 .gs-box { text-align: left; max-height: 86vh; overflow: auto } .gs-box b#gs-t { text-align: center }
 .gs-ol { margin: 0; padding-left: 20px; display: grid; gap: 8px; font-size: .92rem; line-height: 1.35 }
 .gs-no { display: flex; gap: 8px; align-items: center; font-size: .88rem; color: var(--muted) }
@@ -933,8 +939,10 @@ kbd { display: inline-block; padding: 1px 7px; border-radius: 6px; background: #
   <div class="sync-scelta" id="sync-scelta"><button type="button" class="btn pri" id="sync-scan">📷 Inquadra il QR del collega</button>
     <details class="sync-cod" id="sync-cod"><summary>Non riesci a inquadrare? Scrivi il suo codice</summary><div><input id="sync-code" placeholder="Codice" autocapitalize="characters" maxlength="8"><button type="button" class="btn sm" id="sync-go">Collega</button></div></details></div>
 </div></div>
+<div class="tt" id="tt" hidden><div class="tt-hole" id="tt-hole"></div><div class="tt-card" id="tt-card" role="dialog" aria-live="polite"><small id="tt-n"></small><b id="tt-t"></b><p id="tt-p"></p><div class="tt-b"><button type="button" class="btn sm" id="tt-x">Esci</button><button type="button" class="btn pri" id="tt-ok">Avanti</button></div></div></div>
 <div class="guida" id="guida" hidden role="dialog" aria-label="Guida"><div class="guida-in">
   <div class="sync-top"><b>❓ Come si usa SITEL</b><button type="button" class="fv-x" id="guida-x" aria-label="Chiudi">✕</button></div>
+  <button type="button" class="btn pri tt-go" id="guida-tour">▶ Mini tutorial (1 minuto)</button>
   <details class="g-it"><summary><span>👋</span>Accesso</summary><p>Ogni mattina scrivi nome e cognome e scegli il collega (o "Da solo"). Il campo Tecnico delle schede si compila da solo con i cognomi.</p></details><details class="g-it"><summary><span>📋</span>Scheda Wind</summary><p>In <b>Compila</b> scegli <b>Wind</b>. Tocca una sezione per aprirla: l'icona diventa verde quando è completa, l'anello in alto dice quanto manca.<br>• <b>📍 Sito da qui</b>: mette sito e codice della Wind dove sei (se ce ne sono due vicine ti fa scegliere) e la temperatura.<br>• Tasti rapidi (Outdoor, Traliccio, Söll, 3 fili, Sì/No…): un tocco e il campo è scritto. <b>✏️ Scrivi</b> per altro.<br>• <b>📷</b> su Contatore: foto o QR del contatore, legge i numeri da solo.<br>• <b>📐 Misura</b> sotto Altezza: ti metti a distanza nota, inquadri cima e base. L'altezza è in metri interi, senza virgola.<br>• Punto di misura: tasti <b>Pozzetto n.1</b> e <b>QAR</b>.</p></details><details class="g-it"><summary><span>📞</span>Compila in chiamata</summary><p>Tasto verde col telefono in basso. Il telefono chiede ogni voce vuota e ti ascolta da solo: dici il valore, poi «sì» per andare avanti. Puoi dire «lascia libero», «indietro», «ripeti», «fine». In alto puoi scegliere «Tocca e parla».<br><b>Dipende dal telefono</b>: la voce la riconosce il telefono, non l'app. iPhone e Pixel vanno bene; su alcuni Android (es. Xiaomi) è più lenta e sbaglia di più i numeri. Tieni aggiornate le app <b>Google</b> e <b>Chrome</b>, parla vicino al telefono e, se un numero esce sbagliato, scrivilo con ✏️.</p></details><details class="g-it"><summary><span>💾</span>Salvare e inviare</summary><p><b>Salva</b>: la scheda va nello Storico del telefono.<br><b>Esporta</b>: PDF o JPG uguali al foglio originale, oppure <b>📤 Invia tutto</b> (rapporto + foto GPS di oggi del sito, didascalia tipo Ottana-NU009) per WhatsApp.<br><b>Copia</b>: la scheda come testo.</p></details><details class="g-it"><summary><span>🟢</span>Visita Inwit</summary><p>In <b>Compila</b> scegli <b>Inwit</b>: nessun modulo. Scegli il sito (o 📍 Sito da qui), scatta le foto, se vuoi una nota, poi <b>Salva visita</b>. La trovi nello Storico con l'etichetta INWIT.</p></details><details class="g-it"><summary><span>🗂</span>Storico</summary><p>Tutte le schede e visite salvate su questo telefono. Apri, PDF, JPG, Invia foto, Elimina. Cerca per sito, codice o tecnico.</p></details><details class="g-it"><summary><span>📍</span>Siti</summary><p>Elenco Wind e Inwit della Sardegna: cerca (anche a voce), 📍 Vicino a me, ☁ meteo, Waze e Maps, + Giro per il giro della giornata.</p></details><details class="g-it"><summary><span>📈</span>VSWR</summary><p>Tabella delle bande RRU (B1 1920–2110…), guida passo passo del Viavi JD724C (VSWR, DTF, schermo diviso) ed esempi di schermo <b>DTF VSWR</b>: la linea rossa è il <b>limite 1,30</b>, un picco sopra va controllato, tranne il TMA.</p></details>
   <details class="g-it"><summary><span>📊</span>Numeri</summary><p>Il mese in breve: schede, siti, km, anomalie, foto, giorni e province.</p></details><details class="g-it"><summary><span>📷</span>Foto</summary><p>In <b>Compila</b> tocca il tasto tondo <b>📷</b> in basso a destra (c'è sempre): si apre la fotocamera a tutto schermo, per Wind o Inwit secondo la scheda in cui sei.<br>Tocchi il cerchio e la foto è salvata, senza "Usa foto". <b>Wind</b>: sulla foto scrive sito, data, ora, GPS e tecnico. <b>Inwit</b>: foto pulite.<br><b>Zoom</b>: tasti 0,5× 1× 2× 5× o allarga due dita (0,5× solo se il telefono ha il grandangolo).<br>In basso a sinistra l'ultima foto: toccala per andare in <b>Galleria</b>. ✕ in alto torna alla scheda, 📱 usa la fotocamera normale del telefono.<br><b>Senza codice sito niente foto Wind</b>: il sito lo prende dal GPS solo se sei a meno di 50 m, altrimenti serve il codice nella scheda. Se manca esce l'avviso: <b>✍️ Scrivi il codice sito</b> ti porta alla casella.<br><b>Galleria</b> (nella barra in alto): scegli Wind o Inwit. Su Android le foto vanno anche nella galleria del telefono da sole; su iPhone tocca <b>Salva in galleria</b>.<br>Le cartelle sono per sito (<b>NU009 Ottana</b>), anno e giorno. Il pallino ◯ seleziona tutta la cartella; <b>📤</b> la invia subito (WhatsApp, mail, File) con didascalia NU009 Ottana. Su iPhone prima compare una mini guida per salvarle, anche in una cartella del sito su File.<br><b>Foto con un collega</b>: chi riceve tocca <b>📥 Ricevi</b> e mostra il QR, l'altro tocca <b>📤 Condividi</b> e lo inquadra. Partono le foto di oggi, o solo quelle selezionate con Seleziona (serve linea).</p></details><details class="g-it"><summary><span>📲</span>Installare</summary><p>Android: tocca Installa quando lo chiede. iPhone (Safari): Condividi → Aggiungi alla schermata Home. Funziona anche senza linea.</p></details><details class="g-it"><summary><span>🔒</span>I tuoi dati</summary><p>Schede e foto restano solo su questo telefono, nessun archivio online. Se cancelli i dati del browser o togli l'app si perdono (su iPhone <b>non togliere l'app dalla Home</b>).<br><b>💾 Backup</b> (in alto, accanto al ?): salva schede e foto su File, meglio iCloud Drive in una cartella SITEL. Fallo ogni venerdì.<br><b>Ripristino</b>: Storico → <b>♻️ Ripristina backup</b>, scegli tutti i file della cartella SITEL: tornano schede e foto nelle loro cartelle, senza cancellare niente.</p></details>
 </div></div>
@@ -3748,6 +3756,52 @@ $("sync-x").onclick = syncChiudi;
 document.addEventListener("click", e => { const b = e.target.closest(".btn-sync"); if (b) syncApri(b.dataset.g || (b.closest("#view-foto") ? fotoG : ""), b.dataset.ruolo); });
 $("btn-aiuto").onclick = () => { $("guida").hidden = false; };
 $("guida-x").onclick = () => { $("guida").hidden = true; };
+// mini tutorial: one key at a time is lit up and explained (from the guide, and once on a new phone)
+const TOUR = [
+  ["#tab-compila", "Compila", "Qui compili la scheda Wind o la visita Inwit."],
+  ["#chips", "Sezioni", "Tocca una sezione per saltarci. Il numero dice quante voci mancano."],
+  ["#f_sito", "Sito e codice", "Scrivi il sito, oppure tocca 📍 Sito da qui: mette sito e codice della Wind dove sei."],
+  ["#foto-apri", "📷 Foto", "Sempre qui in basso. Senza codice sito non scatta: il sito lo prende dal GPS solo entro 50 m."],
+  ["#btn-voice", "📞 In chiamata", "Compili a voce: il telefono chiede ogni voce, tu rispondi."],
+  ["#btn-save", "Salva", "La scheda va nello Storico, solo su questo telefono."],
+  ["#btn-exp", "Esporta", "PDF o JPG uguali al foglio, oppure Invia tutto: rapporto e foto per WhatsApp."],
+  ["#tab-storico", "Storico", "Le schede salvate: apri, PDF, invia. Da qui anche Ripristina backup."],
+  ["#tab-galleria", "Galleria", "Foto in cartelle NU009 Ottana per anno e giorno. ◯ seleziona la cartella, 📤 la invia."],
+  ["#tab-vswr", "VSWR", "Bande RRU, guida del JD724C ed esempi DTF VSWR con il limite 1,30."],
+  ["#tab-siti", "Siti", "Elenco Wind e Inwit: cerca, vicino a me, meteo, Waze e il giro del giorno."],
+  ["#btn-bk-top", "💾 Backup", "Ogni venerdì: salva schede e foto su File, così non perdi niente."],
+  ["#btn-aiuto", "? Guida", "Tutte le spiegazioni. Da qui puoi rivedere questo tutorial."],
+];
+let ttI = -1, ttList = [];
+function ttMostra() {
+  const [sel, tit, txt] = ttList[ttI], el = document.querySelector(sel);
+  el.scrollIntoView({ block: "center", behavior: "instant" in document.documentElement.style ? "instant" : "auto" });
+  requestAnimationFrame(() => {
+    const r = el.getBoundingClientRect(), pad = 6, h = $("tt-hole"), c = $("tt-card");
+    Object.assign(h.style, { left: r.left - pad + "px", top: r.top - pad + "px", width: r.width + pad * 2 + "px", height: r.height + pad * 2 + "px" });
+    $("tt-n").textContent = (ttI + 1) + " di " + ttList.length; $("tt-t").textContent = tit; $("tt-p").textContent = txt;
+    $("tt-ok").textContent = ttI === ttList.length - 1 ? "Fine" : "Avanti";
+    const sotto = r.bottom + 12 + 190 < innerHeight;
+    c.style.top = sotto ? r.bottom + 14 + "px" : ""; c.style.bottom = sotto ? "" : innerHeight - r.top + 14 + "px";
+  });
+}
+function ttAvvia() {
+  showTab("compila"); $("guida").hidden = true; $("inst").hidden = true;
+  ttList = TOUR.filter(([s]) => { const e = document.querySelector(s); return e && e.getClientRects().length; });
+  if (!ttList.length) return; ttI = 0; $("tt").hidden = false; ttMostra();
+}
+function ttFine() { $("tt").hidden = true; ttI = -1; try { localStorage.setItem("bts-tour", "1"); } catch (e) {} scrollTo(0, 0); }
+$("tt-ok").onclick = () => { if (++ttI >= ttList.length) ttFine(); else ttMostra(); };
+$("tt-x").onclick = ttFine;
+addEventListener("resize", () => { if (ttI >= 0) ttMostra(); });
+$("guida-tour").onclick = ttAvvia;
+// a new phone (nothing saved yet) sees it once by itself, when the app is ready
+setTimeout(function ttPrimo() {
+  try { if (localStorage.getItem("bts-tour") || loadStore().length) return; } catch (e) { return; }
+  if (!$("chiave").hidden || document.querySelector(".login:not([hidden]), #splash")) return void setTimeout(ttPrimo, 3000);
+  ttAvvia();
+}, 3000);
+
 $("guida").addEventListener("click", e => { if (e.target === $("guida")) $("guida").hidden = true; });
 /* ---------- altezza del palo: inclinazione del telefono verso cima e base, da una distanza nota ---------- */
 let misStream = null, misAng = [], misCima = null, misBase = null;
