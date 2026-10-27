@@ -712,7 +712,10 @@ kbd { display: inline-block; padding: 1px 7px; border-radius: 6px; background: #
 .fanno summary::-webkit-details-marker { display: none }
 .fanno summary small { margin-left: auto; color: var(--muted); font-weight: 500; font-size: .8rem }
 .fanno summary::after { content: "▾"; color: var(--accent); transition: transform .2s } .fanno[open] summary::after { transform: rotate(180deg) }
-.fday { padding: 2px 10px 6px; font-size: .8rem; font-weight: 700; color: var(--muted) }
+.fday { padding: 2px 10px 6px; font-size: .8rem; font-weight: 700; color: var(--muted); display: flex; align-items: center; gap: 8px }
+.fsel { flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--line); background: var(--surface); display: inline-grid; place-items: center; font: 800 .8rem var(--f-body); color: #FFFFFF; cursor: pointer }
+.fsel.on { background: var(--accent); border-color: var(--accent) }
+#foto-list:not(.selecting) .fsel { opacity: .55 }
 .meteo { justify-self: start; margin-top: 2px }
 .qui-row { display: flex; gap: 8px; flex-wrap: wrap }
 .scelte { display: flex; gap: 8px; flex-wrap: wrap }
@@ -3215,7 +3218,7 @@ let fotoG = "";
 function fotoSito(f) {
   let c = f.code, n = f.sito;
   if (c === undefined) { const m = /^Foto (\S+) \d{4}-/.exec(f.name || ""); c = m ? m[1] : ""; const s = c && SITO_BY_CODE.get(c); n = s ? s.n : ""; }
-  return sitoTag(n, c) || (f.g === "Inwit" ? "Inwit" : "Senza sito");
+  return [String(c || "").trim().toUpperCase(), sitoTag(n, "")].filter(Boolean).join(" ") || (f.g === "Inwit" ? "Inwit" : "Senza sito");
 }
 async function renderFoto() {
   if (typeof iwGrid === "function") iwGrid();
@@ -3245,9 +3248,9 @@ async function renderFoto() {
   $("foto-list").innerHTML = all.length && !vis.length ? `<div class="empty"><b>Nessuna foto</b>Nessun sito corrisponde a “${esc($("fq").value.trim())}”.</div>`
     : all.length ? vis.map(([s, ys]) => {
       const tutte = [...ys.values()].flatMap(ds => [...ds.values()].flat()), anni = [...ys.keys()];
-      return `<details class="fgrp" data-g="${esc(s)}"${fotoAperti.has(s) || fq ? " open" : ""}><summary><b>📁 ${esc(s)}<span class="gd">${anni.length > 1 ? "Anni " + anni.join(", ") : "Anno " + anni[0]}</span></b><small>${conta(tutte)}</small></summary>`
-        + [...ys].map(([y, ds]) => `<details class="fanno" data-g="${esc(s + "|" + y)}"${fotoAperti.has(s + "|" + y) || fq ? " open" : ""}><summary>📅 ${y}<small>${conta([...ds.values()].flat())}</small></summary>`
-          + [...ds].map(([d, fs]) => `<div class="fday">${d}/${y}</div><div class="fg">${fs.map(thumb).join("")}</div>`).join("") + `</details>`).join("")
+      return `<details class="fgrp" data-g="${esc(s)}"${fotoAperti.has(s) || fq ? " open" : ""}><summary><span class="fsel" role="button" tabindex="0" aria-label="Seleziona tutta la cartella"></span><b>📁 ${esc(s)}<span class="gd">${anni.length > 1 ? "Anni " + anni.join(", ") : "Anno " + anni[0]}</span></b><small>${conta(tutte)}</small></summary>`
+        + [...ys].map(([y, ds]) => `<details class="fanno" data-g="${esc(s + "|" + y)}"${fotoAperti.has(s + "|" + y) || fq ? " open" : ""}><summary><span class="fsel" role="button" tabindex="0" aria-label="Seleziona tutta la cartella"></span>📅 ${y}<small>${conta([...ds.values()].flat())}</small></summary>`
+          + [...ds].map(([d, fs]) => `<div class="fday"><span class="fsel" role="button" tabindex="0" aria-label="Seleziona tutta la cartella"></span>${d}/${y}</div><div class="fg">${fs.map(thumb).join("")}</div>`).join("") + `</details>`).join("")
         + `</details>`; }).join("")
     : '<div class="empty"><b>Nessuna foto ancora</b>Tocca “Scatta foto”: data, ora, GPS e sito vengono scritti sulla foto.</div>';
   selUI();
@@ -3265,6 +3268,8 @@ function selUI() {
     if (selMode) b.setAttribute("aria-pressed", on); else b.removeAttribute("aria-pressed");
     b.querySelector(".chk").textContent = on ? "✓" : "";
   }
+  // folder ticks: full when every photo inside is selected
+  for (const t of $("foto-list").querySelectorAll(".fsel")) { const ids = fselIds(t); t.textContent = selMode && ids.length && ids.every(id => sel.has(id)) ? "✓" : ""; t.classList.toggle("on", t.textContent !== ""); }
   $("sel-n").textContent = sel.size ? sel.size + (sel.size === 1 ? " foto selezionata" : " foto selezionate") : "Tocca o trascina il dito sulle foto";
   $("sel-all").textContent = sel.size === fotoLast.length && fotoLast.length ? "Nessuna" : "Tutte";
   const del = $("sel-del"); if (del.dataset.armed !== "1") del.textContent = "Elimina" + (sel.size ? " (" + sel.size + ")" : "");
@@ -3286,7 +3291,17 @@ $("fv-prev").onclick = () => fotoStep(-1); $("fv-next").onclick = () => fotoStep
 let fvX = null;
 $("foto-img").addEventListener("touchstart", e => { fvX = e.touches[0].clientX; }, { passive: true });
 $("foto-img").addEventListener("touchend", e => { if (fvX === null) return; const dx = e.changedTouches[0].clientX - fvX; fvX = null; if (Math.abs(dx) > 50) fotoStep(dx < 0 ? 1 : -1); });
+// the photos of a folder (site or year) or of a day
+function fselIds(t) {
+  const box = t.closest(".fday") ? t.closest(".fday").nextElementSibling : t.closest("details");
+  return box ? [...box.querySelectorAll("button[data-id]")].map(b => b.dataset.id) : [];
+}
 $("foto-list").addEventListener("click", async e => {
+  const t = e.target.closest(".fsel");
+  if (t) { e.preventDefault(); e.stopPropagation();
+    const ids = fselIds(t), tutte = selMode && ids.every(id => sel.has(id)); selMode = true;
+    for (const id of ids) tutte ? sel.delete(id) : sel.add(id);
+    disarmSel(); selUI(); return; }
   const b = e.target.closest("button[data-id]"); if (!b) return;
   if (dragDone) { dragDone = false; return; }  // the drag already did the selecting
   if (selMode) { const id = b.dataset.id; sel.has(id) ? sel.delete(id) : sel.add(id); disarmSel(); selUI(); return; }
