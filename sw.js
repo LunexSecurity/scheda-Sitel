@@ -1,5 +1,5 @@
 // Page: network first so updates show at once, cache when there is no signal. Other files: cache first.
-const CACHE = "scheda-bts-v135";
+const CACHE = "scheda-bts-v136";
 const FILES = ["./", "index.html", "manifest.json", "jspdf.umd.min.js", "asr-worker.js",
   "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png", "icons/apple-touch-icon.png", "icons/favicon.png",
   "fonts/barlow-latin-400-normal.woff2", "fonts/barlow-latin-500-normal.woff2", "fonts/barlow-latin-600-normal.woff2",
