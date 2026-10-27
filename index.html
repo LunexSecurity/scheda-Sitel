@@ -3447,7 +3447,9 @@ async function stampFoto(src, sw, sh) {
 /* quick shots: a camera inside the app, one tap and the photo is kept (no "Usa foto" step) */
 let camStream = null;
 // phones with little memory (Redmi 9 and similar) lag with a 4K preview: Full HD is plenty for a site photo
-const camRes = () => (navigator.deviceMemory || 8) <= 4 || (navigator.hardwareConcurrency || 8) < 6 ? { width: { ideal: 1920 }, height: { ideal: 1080 } } : { width: { ideal: 3840 }, height: { ideal: 2160 } };
+// a 4K preview makes mid-range Androids stutter (Mirko on a Xiaomi): Full HD on light mode and on Androids up to 6 GB
+const camRes = () => document.documentElement.classList.contains("lite") || (navigator.deviceMemory || 8) <= 4 || (navigator.hardwareConcurrency || 8) < 6
+  || (/Android/i.test(navigator.userAgent) && (navigator.deviceMemory || 8) <= 6) ? { width: { ideal: 1920 }, height: { ideal: 1080 } } : { width: { ideal: 3840 }, height: { ideal: 2160 } };
 async function camStart() {
   if (camStream || !(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) { if (!camStream) camFallback(); return; }
   try {
