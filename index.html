@@ -3567,10 +3567,11 @@ function camFallback() { camStop(); }
 $("cam-toggle").onclick = () => { if (camStream) { if (!fotoSitoOk()) return; camStop(); $("foto-in").click(); } else camStart(); };
 /* zoom: the phone's real zoom when the camera offers it (most Androids, recent iPhones), otherwise a digital zoom on the centre.
    0.5x needs the wide lens: either the camera's own zoom goes below 1, or a separate "ultra wide" camera is switched on */
-let camZoom = 1, camZmax = 4, camHw = null, camUW = null, camMain = null, suUW = false, camCambio = false;
+let camZoom = 1, camZmax = 4, camHw = null, camUW = null, camMain = null, suUW = false, camCambio = false, camAltre = [];
+const UW_T = /Android/i.test(navigator.userAgent) ? "0,6" : "0,5";
 function zoomTasti() {
   const basso = (camHw && camHw.min <= .6) || camUW || suUW;
-  $("cam-zoom").innerHTML = (basso ? [.5] : []).concat([1, 2, 5].filter(z => z <= camZmax), camZmax >= 3 && camZmax < 5 ? [camZmax] : []).map(z => `<button type="button" data-z="${z}">${String(z).replace(".", ",")}×</button>`).join("");
+  $("cam-zoom").innerHTML = (basso ? [.5] : []).concat([1, 2, 5].filter(z => z <= camZmax), camZmax >= 3 && camZmax < 5 ? [camZmax] : []).map(z => `<button type="button" data-z="${z}">${z === .5 ? UW_T : String(z).replace(".", ",")}×</button>`).join("");
 }
 function zoomInit(z) {
   camHw = null; const tr = camStream && camStream.getVideoTracks()[0];
@@ -3580,7 +3581,10 @@ function zoomInit(z) {
   zoomTasti(); zoomSet(z || 1);
   // look for the ultra wide lens by name (iPhone and some Androids give it one)
   if (!camUW && !(camHw && camHw.min <= .6) && navigator.mediaDevices.enumerateDevices) navigator.mediaDevices.enumerateDevices().then(ds => {
-    const d = ds.find(d => d.kind === "videoinput" && d.deviceId !== camMain && /ultra|grandangol|0[.,]5/i.test(d.label) && !/front|anterior|frontal/i.test(d.label));
+    const dietro = ds.filter(d => d.kind === "videoinput" && d.deviceId && d.deviceId !== camMain && !/front|anterior|frontal|selfie/i.test(d.label));
+    // Android Chrome calls them only "camera2 2, facing back": no name says which is the wide one, so every other back lens is tried in turn
+    camAltre = dietro.map(d => d.deviceId);
+    const d = dietro.find(d => /ultra|grandangol|0[.,][56]/i.test(d.label)) || (/Android/i.test(navigator.userAgent) && dietro.find(d => /back|rear|poster|environment/i.test(d.label)));
     if (d) { camUW = d.deviceId; zoomTasti(); zoomSet(camZoom); }
   }).catch(() => {});
 }
@@ -3595,7 +3599,11 @@ async function camLente(uw, z) {
 }
 function zoomSet(z) {
   if (camCambio) return;
-  if (suUW) { if (z >= 1) camLente(false, z); else zoomMostra(.5); return; }
+  if (suUW) {
+    if (z >= 1) { camLente(false, z); return; }
+    if (zoomTocco && camAltre.length > 1) { zoomTocco = false; const i = camAltre.indexOf(camUW); camUW = camAltre[(i + 1) % camAltre.length]; camLente(true, .5); toast("Provo l'altra lente"); return; }
+    zoomMostra(.5); return;
+  }
   if (z < 1 && !(camHw && camHw.min <= .6)) { if (camUW) camLente(true, .5); else zoomMostra(1); return; }
   zoomMostra(Math.max(camHw ? camHw.min : 1, Math.min(camZmax, z)));
 }
@@ -3607,7 +3615,8 @@ function zoomMostra(z) {
   let zv = $("cam").querySelector(".cam-zv"); if (!zv) { zv = document.createElement("div"); zv.className = "cam-zv"; $("cam").appendChild(zv); }
   zv.textContent = z.toFixed(1).replace(".", ",") + "×"; zv.hidden = Math.abs(z - 1) < .05;
 }
-$("cam-zoom").addEventListener("click", e => { const b = e.target.closest("button[data-z]"); if (b) zoomSet(+b.dataset.z); });
+let zoomTocco = false;
+$("cam-zoom").addEventListener("click", e => { const b = e.target.closest("button[data-z]"); if (b) { zoomTocco = true; zoomSet(+b.dataset.z); zoomTocco = false; } });
 // two fingers: pinch to zoom
 const dita = new Map(); let pinch0 = null;
 $("cam").addEventListener("pointerdown", e => { if (e.target.closest("button")) return; dita.set(e.pointerId, e); if (dita.size === 2) { const [a, b] = [...dita.values()]; pinch0 = { d: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY), z: camZoom }; } });
