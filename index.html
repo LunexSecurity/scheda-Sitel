@@ -638,6 +638,7 @@ body.modo-inwit .foto-fab { background: linear-gradient(135deg, #1F5F5B, #2A9D93
 .cam-cod { position: fixed; inset: 0; z-index: 95; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(0,0,0,.6) } .cam-cod[hidden] { display: none }
 .cam-cod-box { width: 100%; max-width: 340px; background: var(--surface); color: var(--ink); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 10px; text-align: center }
 .wa-box { text-align: left; max-height: 86vh; display: flex; flex-direction: column }
+.wa-top .fv-x { background: var(--field); color: var(--ink); flex: 0 0 auto }
 .wa-top { display: flex; justify-content: space-between; align-items: center; gap: 10px } .wa-top b { font: 700 1.15rem var(--f-display) }
 .wa-l { overflow: auto; display: grid; gap: 8px; margin-top: 6px }
 .wa-l button { display: flex; justify-content: space-between; align-items: center; gap: 10px; width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-align: left; cursor: pointer; font: inherit }
@@ -958,6 +959,7 @@ kbd { display: inline-block; padding: 1px 7px; border-radius: 6px; background: #
     <details class="sync-cod" id="sync-cod"><summary>Non riesci a inquadrare? Scrivi il suo codice</summary><div><input id="sync-code" placeholder="Codice" autocapitalize="characters" maxlength="8"><button type="button" class="btn sm" id="sync-go">Collega</button></div></details></div>
 </div></div>
 <div class="cam-cod" id="wa" role="dialog" aria-labelledby="wa-t" hidden><div class="cam-cod-box wa-box"><div class="wa-top"><b id="wa-t">Cosa mandi su WhatsApp?</b><button type="button" class="fv-x" id="wa-x" aria-label="Chiudi">✕</button></div><div class="wa-l" id="wa-l"></div></div></div>
+<div class="cam-cod" id="iwp" role="dialog" aria-labelledby="iwp-t" hidden><div class="cam-cod-box wa-box"><div class="wa-top"><b id="iwp-t">Quale sito Inwit?</b><button type="button" class="fv-x" id="iwp-x" aria-label="Chiudi">✕</button></div><div class="inp"><input id="iwp-in" list="dl-inwit" placeholder="Nome o codice, es. I484CA" autocomplete="off" autocapitalize="characters"></div><button type="button" class="btn pri" id="iwp-ok">Usa questo sito</button><small class="hint" id="iwp-h">Oppure tocca uno dei più vicini:</small><div class="wa-l" id="iwp-l"></div></div></div>
 <div class="tt" id="tt" hidden><div class="tt-hole" id="tt-hole"></div><div class="tt-card" id="tt-card" role="dialog" aria-live="polite"><small id="tt-n"></small><b id="tt-t"></b><p id="tt-p"></p><div class="tt-b"><button type="button" class="btn sm" id="tt-x">Esci</button><button type="button" class="btn pri" id="tt-ok">Avanti</button></div></div></div>
 <div class="guida" id="guida" hidden role="dialog" aria-label="Guida"><div class="guida-in">
   <div class="sync-top"><b>❓ Come si usa SITEL</b><button type="button" class="fv-x" id="guida-x" aria-label="Chiudi">✕</button></div>
@@ -3629,7 +3631,7 @@ $("cam-x").onclick = () => showTab("compila");
 $("cam-nat").onclick = () => { if (!fotoSitoOk()) return; camStop(); $("foto-in").click(); };
 // no site code, no photo (Mirko): Wind needs a Wind site within 50 m or the code typed by hand, Inwit the chosen site
 function fotoSitoOk() {
-  if (fotoG === "Inwit") { if (iwSitoOra()) return true; toast("Prima scegli il sito Inwit: senza codice sito niente foto"); return false; }
+  if (fotoG === "Inwit") { if (iwSitoOra()) return true; iwPick(); return false; }
   const fix = fotoFix && Date.now() - fotoFix.t <= 120000 ? fotoFix : null;
   if (fotoForza || (fix && nearestSite(fix, "Wind")) || String(dati.codice || "").trim()) return true;
   $("cam-cod").hidden = false; return false;
@@ -3681,7 +3683,7 @@ $("gal-g").addEventListener("click", e => { const b = e.target.closest("[data-g]
 // photos live inside Compila: Wind with the GPS band, Inwit clean
 $("foto-apri").onclick = () => showTab("foto");
 // Inwit photos go with today's Inwit visit, when one is open
-const iwSitoOra = () => iw.codice && (iw.data || today()) === today() ? SITO_BY_CODE.get(iw.codice) : null;
+const iwSitoOra = () => iw.codice && (iw.data || today()) === today() ? (SITO_BY_CODE.get(iw.codice) || { c: iw.codice, n: iw.sito || "", g: "Inwit" }) : null;
 /* ---------- scambio foto tra due telefoni: diretto (WebRTC), un servizio gratuito serve solo a presentarli ---------- */
 const SYNC_SRC = window.SITEL_STANDALONE ? { peer: "vendor/sync/peerjs.min.js", qr: "vendor/sync/qrcode.js" }
   : { peer: "https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js", qr: "https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js" };
@@ -3965,7 +3967,7 @@ $("iw-sito").addEventListener("change", () => {
   const k = v.split(/\s+/)[0].toUpperCase();
   let s = SITO_BY_CODE.get(k);
   if (!s || s.g !== "Inwit") { const n = norm(v); s = SITI.find(x => x.g === "Inwit" && (norm(x.n) === n || norm(x.c + " " + x.n) === n)) || SITI.find(x => x.g === "Inwit" && norm(x.n).includes(n)); }
-  if (s) iwSito(s); else toast("Sito Inwit non trovato: scegli dall'elenco");
+  if (s) iwSito(s); else if (iwCodiceMano(v)) iwSito(iwCodiceMano(v)); else toast("Sito Inwit non trovato: scegli dall'elenco o scrivi il codice");
 });
 $("iw-note").addEventListener("input", () => { iw.note = $("iw-note").value; iwSalvaBozza(); });
 $("iw-qui").onclick = () => {
@@ -3990,11 +3992,34 @@ $("iw-foto").addEventListener("change", () => {
   const file = $("iw-foto").files && $("iw-foto").files[0]; if (!file) return;
   const url = URL.createObjectURL(file), img = new Image();
   // Inwit photos stay as they are (no GPS band), tied to the chosen site
-  img.onload = () => { URL.revokeObjectURL(url); $("iw-foto").value = ""; fotoImporta([file], SITO_BY_CODE.get(iw.codice), { grezza: true }); };
+  img.onload = () => { URL.revokeObjectURL(url); $("iw-foto").value = ""; fotoImporta([file], SITO_BY_CODE.get(iw.codice) || { c: iw.codice, n: iw.sito || "", g: "Inwit" }, { grezza: true }); };
   img.onerror = () => { URL.revokeObjectURL(url); toast("Non riesco ad aprire la foto, riprova"); };
   img.src = url;
 });
-$("iw-foto").previousElementSibling.addEventListener("click", e => { if (!iw.codice) { e.preventDefault(); toast("Prima scegli il sito Inwit"); $("iw-sito").focus(); } });
+$("iw-foto").previousElementSibling.addEventListener("click", e => { if (!iw.codice) { e.preventDefault(); iwPick(); } });
+// a code typed by hand that is not in the list (Mirko: photos even when the GPS or the list don't help)
+function iwCodiceMano(v) { const k = String(v || "").trim().toUpperCase().split(/\s+/)[0]; return /^[A-Z0-9_-]{3,12}$/.test(k) && /\d/.test(k) ? { c: k, n: String(v).trim().slice(k.length).trim(), g: "Inwit" } : null; }
+// pick the Inwit site by hand: search or one of the nearest, at any distance
+function iwPick() {
+  if (iw.codice && (iw.data || today()) !== today() && !iw.id) { iw.data = today(); iwSalvaBozza(); return; }
+  const f = fotoFix, near = f ? SITI.filter(s => s.g === "Inwit").map(s => ({ s, d: km(f, s) })).sort((a, b) => a.d - b.d).slice(0, 5) : [];
+  $("iwp-in").value = ""; $("iwp-h").hidden = !near.length;
+  $("iwp-l").innerHTML = near.map(x => `<button type="button" data-inwit="${esc(x.s.c)}"><span><b>${esc(x.s.c)} ${esc(x.s.n)}</b></span><em>${fmtKm(x.d)}</em></button>`).join("");
+  $("iwp").hidden = false;
+}
+function iwPickUsa(s) {
+  if ((iw.data || today()) !== today()) { iw.id = null; iw.note = ""; iw.data = today(); }
+  iwSito(s); $("iwp").hidden = true; toast("Sito Inwit: " + sitoTag(s.n, s.c) + ". Ora scatta");
+}
+$("iwp-x").onclick = () => { $("iwp").hidden = true; };
+$("iwp-l").onclick = e => { const b = e.target.closest("button[data-inwit]"); if (b) iwPickUsa(SITO_BY_CODE.get(b.dataset.inwit)); };
+$("iwp-ok").onclick = () => {
+  const v = $("iwp-in").value.trim(), k = v.split(/\s+/)[0].toUpperCase(), n = norm(v);
+  let s = SITO_BY_CODE.get(k); if (s && s.g !== "Inwit") s = null;
+  if (!s && v) s = SITI.find(x => x.g === "Inwit" && (norm(x.n) === n || norm(x.c + " " + x.n) === n)) || iwCodiceMano(v);
+  if (!s) { toast("Scrivi il codice del sito, es. I484CA"); $("iwp-in").focus(); return; }
+  iwPickUsa(s);
+};
 async function iwInvia(d) {
   const fs = iwFoto(d);
   if (!fs.length) { toast("Nessuna foto di quel giorno per " + sitoTag(d.sito, d.codice)); return; }
