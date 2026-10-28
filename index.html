@@ -642,6 +642,7 @@ body.modo-inwit .foto-fab { background: linear-gradient(135deg, #1F5F5B, #2A9D93
 .wa-l { overflow: auto; display: grid; gap: 8px; margin-top: 6px }
 .wa-l button { display: flex; justify-content: space-between; align-items: center; gap: 10px; width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-align: left; cursor: pointer; font: inherit }
 .wa-l button span { display: grid } .wa-l button small { color: var(--muted) } .wa-l button em { font-style: normal; font-weight: 700; color: #1F9D55; white-space: nowrap; font-size: .85rem }
+#btn-wa2 { flex: 0 0 auto; padding-left: 14px; padding-right: 14px; display: inline-flex; align-items: center; justify-content: center }
 .btn.wa, .btn.wa-sm { background: #25D366; border-color: #25D366; color: #FFFFFF; font-weight: 700 }
 .finv, .colleghi { display: none !important }
 .tt { position: fixed; inset: 0; z-index: 1000 } html.lite .tt-hole { box-shadow: 0 0 0 9999px rgba(5,12,25,.72) !important } html.lite .tt-card { box-shadow: 0 10px 30px rgba(0,0,0,.35) !important } .tt[hidden] { display: none }
@@ -909,7 +910,7 @@ kbd { display: inline-block; padding: 1px 7px; border-radius: 6px; background: #
 <button type="button" class="foto-fab" id="foto-apri" aria-label="Foto Wind"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><small id="foto-fab-t">Wind</small></button>
 <div class="bar" id="bar"><div class="bar-in">
   <button class="btn" id="btn-new" title="Svuota il modulo e inizia una nuova scheda">Nuova</button>
-  <button class="btn wa" id="btn-wa2" title="Rapportino e foto di un sito, insieme, su WhatsApp">WhatsApp</button>
+  <button class="btn wa" id="btn-wa2" title="Rapportino e foto di un sito, insieme, su WhatsApp" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 11.9 11.9 0 0 0 4.6 4c1.7.7 2.4.8 3.2.7a2.8 2.8 0 0 0 1.8-1.3 2.3 2.3 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg></button>
   <button class="btn mic" id="btn-voice" aria-label="Compila in chiamata" title="Compila in chiamata"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg></button>
   <button class="btn" id="btn-exp" aria-expanded="false" aria-controls="exp-menu" title="Crea il PDF o l'immagine della scheda">Esporta</button>
   <button class="btn pri" id="btn-save" title="Salva la scheda nello storico di questo telefono">Salva</button>
