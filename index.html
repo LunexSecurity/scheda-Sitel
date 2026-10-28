@@ -4012,6 +4012,8 @@ function iwPickUsa(s) {
   iwSito(s); $("iwp").hidden = true; toast("Sito Inwit: " + sitoTag(s.n, s.c) + ". Ora scatta");
 }
 $("iwp-x").onclick = () => { $("iwp").hidden = true; };
+// a tap on the dark area around closes them too
+for (const id of ["wa", "iwp"]) $(id).addEventListener("click", e => { if (e.target === $(id)) $(id).hidden = true; });
 $("iwp-l").onclick = e => { const b = e.target.closest("button[data-inwit]"); if (b) iwPickUsa(SITO_BY_CODE.get(b.dataset.inwit)); };
 $("iwp-ok").onclick = () => {
   const v = $("iwp-in").value.trim(), k = v.split(/\s+/)[0].toUpperCase(), n = norm(v);
