@@ -4307,7 +4307,23 @@ downloads = { save: async ({ filename, data }) => {
     else if (/Android/.test(ua)) show("Apri il menu <b>⋮</b> in alto a destra e tocca <b>Installa app</b> (o <b>Installa e crea scorciatoia</b>) o <b>Aggiungi a schermata Home</b>." + (/XiaoMi|Redmi|POCO|Mi /i.test(ua) ? "<br>Xiaomi: se non compare l'icona, Impostazioni → App → Chrome → Altre autorizzazioni → attiva <b>Scorciatoie schermata Home</b>." : ""), "Ho capito");
   }, 4000);
 })();
-if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
+if ("serviceWorker" in navigator && location.protocol === "https:") {
+  // updates reach phones where the app stays open for days (Mirko): look for a new version whenever the app comes back
+  // to the screen, and reload by itself once it is there; never in the middle of a photo, a call or while typing
+  const avuto = !!navigator.serviceWorker.controller, giorno0 = new Date().toDateString(); let nuova = false;
+  const libera = () => document.visibilityState === "visible" && !document.body.classList.contains("cam-full") && $("call").hidden
+    && !(document.activeElement && /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName));
+  const ricarica = () => { if (libera()) { try { saveDraft(); } catch (e) {} location.reload(); } };
+  navigator.serviceWorker.addEventListener("controllerchange", () => { if (avuto) { nuova = true; ricarica(); } });
+  navigator.serviceWorker.register("sw.js").then(reg => {
+    const guarda = () => { if (document.visibilityState !== "visible") return;
+      if (nuova || new Date().toDateString() !== giorno0) return ricarica();
+      reg.update().catch(() => {}); };
+    document.addEventListener("visibilitychange", guarda);
+    setInterval(guarda, 30 * 60 * 1000);
+    document.addEventListener("focusout", () => { if (nuova) setTimeout(ricarica, 1500); });
+  }).catch(() => {});
+}
 </script>
 </body>
 </html>
