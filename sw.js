@@ -1,5 +1,5 @@
 // Page: the saved copy opens at once (fast on any phone, any signal) and the new one is fetched for the next opening. Other files: cache first.
-const CACHE = "scheda-bts-v175";
+const CACHE = "scheda-bts-v176";
 const FILES = ["./", "index.html", "manifest.json", "jspdf.umd.min.js", "asr-worker.js",
   "foglio.jpg", "sfondo/t1.webp", "sfondo/t2.webp", "sfondo/t3.webp", "sfondo/t4.webp", "sfondo/t5.webp", "sfondo/t6.webp",
   "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png", "icons/apple-touch-icon.png", "icons/favicon.png",

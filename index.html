@@ -640,6 +640,39 @@ body.modo-inwit .foto-fab { background: linear-gradient(135deg, #1F5F5B, #2A9D93
 .wa-box { text-align: left; max-height: 86vh; display: flex; flex-direction: column }
 .ns-box { text-align: left } .ns-box label { font-size: .8rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-top: 4px }
 .code.mio { background: var(--ok); color: #FFFFFF }
+/* SITEL semplice: three tabs, the old ones stay in the code but out of sight */
+body.nuova #tab-compila, body.nuova #tab-storico, body.nuova #tab-vswr, body.nuova #tab-galleria, body.nuova #tab-numeri, body.nuova #bar, body.nuova #guida-tour { display: none !important }
+#tab-oggi { order: -2 } #tab-siti { order: -1 } #tab-archivio { order: 1 }
+.arch-nav { display: flex; gap: 6px; margin: 4px 0 14px; overflow-x: auto }
+.arch-nav button { flex: 1; min-height: 42px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; font: 600 .95rem var(--f-body); padding: 0 12px; cursor: pointer; white-space: nowrap }
+.arch-nav button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink) }
+#view-oggi, #view-fine { display: flex; flex-direction: column; gap: 12px; padding-bottom: 30px }
+#view-oggi[hidden], #view-fine[hidden] { display: none }
+.og-qui { background: linear-gradient(135deg, #16336D, #1F4C8F); color: #FFFFFF; border-radius: 20px; padding: 20px; display: grid; gap: 4px }
+.og-qui small { opacity: .85; font-size: .8rem; text-transform: uppercase; letter-spacing: .07em; font-weight: 600 }
+.og-qui b { font: 700 2.1rem/1.05 var(--f-display); text-transform: uppercase; overflow-wrap: anywhere }
+.og-qui span { opacity: .9 }
+.og-big { border: 0; border-radius: 18px; min-height: 64px; padding: 14px; font: 700 1.35rem var(--f-display); letter-spacing: .04em; text-transform: uppercase; color: #FFFFFF; background: var(--ok); cursor: pointer; box-shadow: 0 6px 18px rgba(42,117,112,.3) }
+.og-big.wa { background: #1FA855; box-shadow: 0 6px 18px rgba(31,168,85,.3) }
+.og-due { display: grid; grid-template-columns: 1fr 1fr; gap: 10px }
+.og-mid { min-height: 54px; border-radius: 16px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: 700 1.05rem var(--f-display); letter-spacing: .03em; text-transform: uppercase; cursor: pointer }
+.og-link { border: 0; background: none; color: var(--accent); font: 600 .95rem var(--f-body); padding: 6px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px }
+:root[data-theme="dark"] .og-link { color: #9FC2FF }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .og-link { color: #9FC2FF } }
+.og-h { margin: 10px 0 0; font: 700 .8rem var(--f-body); color: var(--muted); text-transform: uppercase; letter-spacing: .08em }
+.og-lista { display: grid; gap: 8px }
+.og-lista button { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; text-align: left; cursor: pointer }
+.og-lista em { font-style: normal; font-weight: 700; color: var(--ok); white-space: nowrap }
+.og-lista p { margin: 0; color: var(--muted) }
+.fi-ok { width: 84px; height: 84px; border-radius: 50%; background: var(--ok); color: #FFFFFF; display: grid; place-items: center; font-size: 2.6rem; margin: 18px auto 0 }
+.fi-t { text-align: center; font: 700 1.9rem/1.1 var(--f-display); text-transform: uppercase; margin: 0 }
+.fi-s { text-align: center; color: var(--muted); margin: 0 }
+body.compila-on main.wrap { padding-bottom: 110px }
+.pz-bot { position: fixed; z-index: 20; left: 0; right: 0; bottom: 0; padding: 10px max(12px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 10px) max(12px, env(safe-area-inset-left, 0px)); background: var(--surface); border-top: 1px solid var(--line); display: grid; grid-template-columns: 72px 1fr; gap: 10px }
+.pz-b { min-height: 60px; border-radius: 16px; border: 1px solid var(--line); background: var(--field); color: var(--ink); font: 700 1.4rem var(--f-display); cursor: pointer }
+.pz-b:disabled { opacity: .35 }
+.pz-av { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-size: 1.4rem; text-transform: uppercase; letter-spacing: .04em }
+.pz-av.fine { background: var(--ok); border-color: var(--ok) }
 .wa-top .fv-x { background: var(--field); color: var(--ink); flex: 0 0 auto }
 .wa-top { display: flex; justify-content: space-between; align-items: center; gap: 10px } .wa-top b { font: 700 1.15rem var(--f-display) }
 .wa-l { overflow: auto; display: grid; gap: 8px; margin-top: 6px }
@@ -802,13 +835,29 @@ kbd { display: inline-block; padding: 1px 7px; border-radius: 6px; background: #
       <button id="tab-vswr" role="tab" aria-selected="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12h3l2-6 3 12 3-9 2 5 2-2h5"/></svg>VSWR</button>
       <button id="tab-galleria" role="tab" aria-selected="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 17l-5-5-9 8"/></svg>Galleria</button>
       <button id="tab-siti" role="tab" aria-selected="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Siti</button>
-      <span class="tab-pill" id="tab-pill" aria-hidden="true"></span><button id="tab-numeri" role="tab" aria-selected="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Numeri</button>
+      <button id="tab-oggi" role="tab" aria-selected="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>Oggi</button><button id="tab-archivio" role="tab" aria-selected="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v11h14V9"/><path d="M10 13h4"/></svg>Archivio</button><span class="tab-pill" id="tab-pill" aria-hidden="true"></span><button id="tab-numeri" role="tab" aria-selected="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Numeri</button>
     </div>
   </div></div>
   <nav class="chips" id="chips" aria-label="Sezioni"></nav>
 </header>
 
 <main class="wrap">
+  <div class="arch-nav" id="arch-nav" role="group" aria-label="Archivio" hidden><button type="button" data-t="storico">Schede</button><button type="button" data-t="galleria">Foto</button><button type="button" data-t="vswr">VSWR</button><button type="button" data-t="numeri">Numeri</button></div>
+  <section id="view-oggi" hidden>
+    <div class="og-qui" id="og-qui"><small id="og-dove">Cerco dove sei…</small><b id="og-sito">&nbsp;</b><span id="og-info"></span></div>
+    <button type="button" class="og-big" id="og-via">▶ Inizia manutenzione</button>
+    <button type="button" class="og-link" id="og-nuova" hidden>Lascia questa e inizia una nuova</button>
+    <div class="og-due"><button type="button" class="og-mid" id="og-foto">📷 Solo foto</button><button type="button" class="og-mid" id="og-inwit">Visita Inwit</button></div>
+    <button type="button" class="og-link" id="og-altro">Non è questo il sito? Scegli dall'elenco</button>
+    <h3 class="og-h" id="og-h">Fatti oggi</h3><div class="og-lista" id="og-lista"></div>
+  </section>
+  <section id="view-fine" hidden>
+    <div class="fi-ok" aria-hidden="true">✓</div>
+    <h2 class="fi-t" id="fi-t">Manutenzione fatta</h2><p class="fi-s" id="fi-s"></p>
+    <button type="button" class="og-big wa" id="fi-wa">WhatsApp</button>
+    <div class="og-due"><button type="button" class="og-mid" id="fi-pdf">PDF</button><button type="button" class="og-mid" id="fi-mod">✏️ Modifica</button></div>
+    <button type="button" class="og-link" id="fi-oggi">Torna a Oggi</button>
+  </section>
   <section id="view-compila">
     <div class="gestore" id="gestore" role="group" aria-label="Gestore del sito"><button type="button" data-g="wind">Wind</button><button type="button" data-g="inwit">Inwit</button></div>
     <div class="inwit" id="inwit" hidden>
@@ -963,6 +1012,7 @@ kbd { display: inline-block; padding: 1px 7px; border-radius: 6px; background: #
 <div class="cam-cod" id="wa" role="dialog" aria-labelledby="wa-t" hidden><div class="cam-cod-box wa-box"><div class="wa-top"><b id="wa-t">Cosa mandi su WhatsApp?</b><button type="button" class="fv-x" id="wa-x" aria-label="Chiudi">✕</button></div><div class="wa-l" id="wa-l"></div></div></div>
 <div class="cam-cod" id="iwp" role="dialog" aria-labelledby="iwp-t" hidden><div class="cam-cod-box wa-box"><div class="wa-top"><b id="iwp-t">Quale sito Inwit?</b><button type="button" class="fv-x" id="iwp-x" aria-label="Chiudi">✕</button></div><div class="inp"><input id="iwp-in" list="dl-inwit" placeholder="Nome o codice, es. I484CA" autocomplete="off" autocapitalize="characters"></div><button type="button" class="btn pri" id="iwp-ok">Usa questo sito</button><small class="hint" id="iwp-h">Oppure tocca uno dei più vicini:</small><div class="wa-l" id="iwp-l"></div></div></div>
 <div class="cam-cod" id="ns" role="dialog" aria-labelledby="ns-t" hidden><div class="cam-cod-box wa-box ns-box"><div class="wa-top"><b id="ns-t">Nuovo sito</b><button type="button" class="fv-x" id="ns-x" aria-label="Chiudi">✕</button></div><div class="gestore mini" id="ns-g" role="group" aria-label="Gestore"><button type="button" data-g="Wind" aria-pressed="true">Wind</button><button type="button" data-g="Inwit" aria-pressed="false">Inwit</button></div><label for="ns-c">Codice sito</label><div class="inp"><input id="ns-c" placeholder="es. NU123" autocomplete="off" autocapitalize="characters"></div><label for="ns-n">Nome</label><div class="inp"><input id="ns-n" placeholder="es. Ottana Zona Industriale" autocomplete="off"></div><p class="hint" id="ns-pos"></p><button type="button" class="btn sm" id="ns-gps">📍 Prendi la posizione di qui</button><button type="button" class="btn pri" id="ns-ok">Salva sito</button></div></div>
+<div class="pz-bot" id="pz-bot" hidden><button type="button" class="pz-b" id="pz-voce" aria-label="Compila a voce">🎤</button><button type="button" class="pz-b pz-av fine" id="pz-av">✓ Fine</button></div>
 <div class="tt" id="tt" hidden><div class="tt-hole" id="tt-hole"></div><div class="tt-card" id="tt-card" role="dialog" aria-live="polite"><small id="tt-n"></small><b id="tt-t"></b><p id="tt-p"></p><div class="tt-b"><button type="button" class="btn sm" id="tt-x">Esci</button><button type="button" class="btn pri" id="tt-ok">Avanti</button></div></div></div>
 <div class="guida" id="guida" hidden role="dialog" aria-label="Guida"><div class="guida-in">
   <div class="sync-top"><b>❓ Come si usa SITEL</b><button type="button" class="fv-x" id="guida-x" aria-label="Chiudi">✕</button></div>
@@ -1743,6 +1793,7 @@ let tabOra = "compila";
 // the white pill slides under the chosen tab
 function movePill() {
   const b = document.querySelector('.tabs button[aria-selected="true"]'), p = $("tab-pill"); if (!b || !p) return;
+  if (!b.offsetWidth) return void setTimeout(movePill, 400);  // header still behind the login
   p.style.width = b.offsetWidth + "px"; p.style.height = b.offsetHeight + "px"; p.style.transform = "translate(" + b.offsetLeft + "px," + b.offsetTop + "px)";
   p.parentNode.classList.add("pill");
 }
@@ -1973,6 +2024,9 @@ const parseSiti = (txt, g) => txt ? txt.split(";").map(r => { const [c, n, la, l
 const SITI = parseSiti(SITI_WIND, "Wind").concat(parseSiti(SITI_INWIT, "Inwit"));
 // new sites not yet in the lists, added by hand on this phone with the GPS taken on the spot (Mirko, 28/10)
 const sitiMiei = () => { try { return JSON.parse(localStorage.getItem("bts-siti-miei")) || []; } catch (e) { return []; } };
+// positions corrected by hand on the spot: the list point is often not the tower itself (Mirko, 29/10)
+const sitiPos = () => { try { return JSON.parse(localStorage.getItem("bts-siti-pos")) || {}; } catch (e) { return {}; } };
+{ const pos = sitiPos(); for (const s of SITI) { const p = pos[s.g + "|" + s.c]; if (p) { s.la = p.la; s.ln = p.ln; s.corr = 1; } } }
 for (const s of sitiMiei()) { const i = SITI.findIndex(x => x.c === s.c && x.g === s.g); if (i >= 0) SITI.splice(i, 1); SITI.push({ o: "", t: "", ...s, mio: 1 }); }
 const b64u8 = s => Uint8Array.from(atob(s), ch => ch.charCodeAt(0));
 async function sitiApri(key) {
@@ -2487,14 +2541,14 @@ function renderSites() {
   if (forse) $("siti-info").textContent = "Nessun sito “" + $("q-siti").value.trim() + "”: forse cercavi " + forse + "?";
   $("list-siti").innerHTML = shown.map(s => `<article class="item">
       <div class="item-top"><span class="code${s.mio ? " mio" : ""}">${esc(s.c)}</span><b>${esc(s.n)}</b>${s.mio ? '<span class="meta">aggiunto da te</span>' : ""}${s.d !== undefined ? `<span class="meta">${fmtKm(s.d)}</span>` : ""}</div>
-      <div class="meta">${s.t ? esc(s.t) + " · " : ""}${s.o ? esc(s.o) + " · " : ""}GPS ${s.la.toFixed(5)}, ${s.ln.toFixed(5)}</div>
+      <div class="meta">${s.t ? esc(s.t) + " · " : ""}${s.o ? esc(s.o) + " · " : ""}GPS ${s.la.toFixed(5)}, ${s.ln.toFixed(5)}${s.corr ? " · corretta da te" : ""}</div>
       ${s.h.length ? `<div class="meta last">Ultima manutenzione: <b>${esc(quando(s.h[0]))}</b>${s.h[0].dati && s.h[0].dati.tecnico ? " · " + esc(s.h[0].dati.tecnico) : ""}${s.h.length > 1 ? " · " + s.h.length + " schede" : ""}</div>` : ""}
       <div class="item-act">
         <a class="btn sm pri-sm" href="${wazeUrl(s)}" target="_blank" rel="noopener">Waze</a>
         <a class="btn sm pri-sm" href="${mapsUrl(s)}" target="_blank" rel="noopener">Maps</a>
         <button class="btn sm" data-c="${esc(s.c)}">Usa nella scheda</button>
         ${s.h.length ? `<button class="btn sm" data-open="${esc(s.h[0].id)}">Apri ultima scheda</button>` : ""}
-        <button class="btn sm" data-mt="${esc(s.c)}">☁ Meteo</button>${s.mio ? `<button class="btn sm" data-nsinv="${esc(s.g + "|" + s.c)}">📤 Invia</button>` : ""}${s.mio ? `<button class="btn sm" data-nsdel="${esc(s.g + "|" + s.c)}">Elimina</button>` : ""}
+        <button class="btn sm" data-mt="${esc(s.c)}">☁ Meteo</button><button class="btn sm" data-pos="${esc(s.g + "|" + s.c)}">📍 Correggi posizione</button>${s.mio ? `<button class="btn sm" data-nsinv="${esc(s.g + "|" + s.c)}">📤 Invia</button>` : ""}${s.mio ? `<button class="btn sm" data-nsdel="${esc(s.g + "|" + s.c)}">Elimina</button>` : ""}
         <button class="btn sm${giro.includes(s.c) ? " in-giro" : ""}" data-giro="${esc(s.c)}">${giro.includes(s.c) ? "✓ Nel giro" : "+ Giro"}</button>
       </div>${meteoCache[s.c] ? meteoHTML(meteoCache[s.c]) : ""}</article>`).join("");
   renderGiro();
@@ -3280,6 +3334,22 @@ $("list-siti").addEventListener("click", e => {
     if (navigator.share) navigator.share({ text: t }).catch(() => {}); else navigator.clipboard.writeText(t).then(() => toast("Copiato"), () => {});
     return;
   }
+  // "Correggi posizione": a second tap confirms, then the GPS of where you stand replaces the site point
+  const cp = e.target.closest("button[data-pos]");
+  if (cp) {
+    if (cp.dataset.armed !== "1") { cp.dataset.armed = "1"; cp.textContent = "Sei al sito? Tocca ancora"; setTimeout(() => { if (cp.isConnected && cp.dataset.armed === "1") { cp.dataset.armed = ""; cp.textContent = "📍 Correggi posizione"; } }, 4000); return; }
+    cp.dataset.armed = ""; cp.disabled = true; cp.textContent = "Cerco la posizione…";
+    const [g, c] = cp.dataset.pos.split("|");
+    posFresca(f => {
+      if (f.acc > 60) { cp.disabled = false; cp.textContent = "📍 Correggi posizione"; toast("Posizione poco precisa (±" + Math.round(f.acc) + " m): spostati all'aperto e riprova"); return; }
+      const la = +f.la.toFixed(6), ln = +f.ln.toFixed(6), x = SITI.find(y => y.c === c && y.g === g); if (!x) return;
+      x.la = la; x.ln = ln; x.corr = 1;
+      if (x.mio) { try { localStorage.setItem("bts-siti-miei", JSON.stringify(sitiMiei().map(y => y.c === c && y.g === g ? { ...y, la, ln } : y))); } catch (er) {} }
+      else { const pos = sitiPos(); pos[g + "|" + c] = { la, ln }; try { localStorage.setItem("bts-siti-pos", JSON.stringify(pos)); } catch (er) {} }
+      renderSites(); bigOk("Posizione di " + c + " corretta");
+    }, () => { cp.disabled = false; cp.textContent = "📍 Correggi posizione"; toast("Posizione non trovata: consenti la posizione o spostati all'aperto"); }, 15000);
+    return;
+  }
   const nd = e.target.closest("button[data-nsdel]");
   if (nd) {
     if (nd.dataset.armed !== "1") { nd.dataset.armed = "1"; nd.textContent = "Conferma eliminazione"; return; }
@@ -3948,7 +4018,7 @@ addEventListener("resize", () => { if (ttI >= 0) ttMostra(); });
 $("guida-tour").onclick = ttAvvia;
 // a new phone (nothing saved yet) sees it once by itself, when the app is ready
 setTimeout(function ttPrimo() {
-  try { if (localStorage.getItem("bts-tour") || loadStore().length) return; } catch (e) { return; }
+  return;
   if (!$("chiave").hidden || document.querySelector(".login:not([hidden]), #splash")) return void setTimeout(ttPrimo, 3000);
   ttAvvia();
 }, 3000);
@@ -4116,6 +4186,127 @@ function iwApri(s) {
 }
 let gIniz = "wind"; try { gIniz = localStorage.getItem("bts-gestore") || "wind"; } catch (e) {}
 setGestore(gIniz === "inwit" ? "inwit" : "wind");
+/* ---------- SITEL semplice (29/10, Mirko): Oggi / Siti / Archivio, the scheda one item per screen, the end screen with WhatsApp ---------- */
+document.body.classList.add("nuova");
+const ARCH = ["storico", "galleria", "vswr", "numeri"], modoInwitOra = () => document.body.classList.contains("modo-inwit");
+const showTab0 = showTab;
+showTab = function (t) {
+  if (t === "oggi" || t === "fine") {
+    for (const v of ["compila", "storico", "vswr", "siti", "numeri", "foto"]) $("view-" + v).hidden = true;
+    camStop(); fotoStop(); $("foto-apri").hidden = t === "oggi"; tabOra = t; window.scrollTo({ top: 0 });
+  } else showTab0(t);
+  $("view-oggi").hidden = t !== "oggi"; $("view-fine").hidden = t !== "fine"; $("chips").hidden = t !== "compila";
+  if (t === "compila" && !modoInwitOra()) pzOn(); else if (t !== "foto") pzOff();
+  $("tab-oggi").setAttribute("aria-selected", t === "oggi" || t === "compila" || t === "foto" || t === "fine");
+  $("tab-archivio").setAttribute("aria-selected", ARCH.includes(t));
+  $("arch-nav").hidden = !ARCH.includes(t);
+  for (const b of $("arch-nav").children) b.setAttribute("aria-pressed", b.dataset.t === t);
+  if (t === "oggi") renderOggi();
+  movePill();
+};
+$("tab-oggi").onclick = () => showTab("oggi");
+// the white pill finds its tab again when the header comes into view after the login
+if (window.ResizeObserver) new ResizeObserver(() => movePill()).observe($("tab-oggi").parentNode);
+$("tab-archivio").onclick = () => showTab(ARCH.includes(tabOra) ? tabOra : "storico");
+$("arch-nav").onclick = e => { const b = e.target.closest("button[data-t]"); if (b) showTab(b.dataset.t); };
+
+/* Oggi: the site where you stand, one big button */
+let ogSito = null;
+const inCorso = () => !docId && FIELDS.some(f => !["data", "tecnico"].includes(f.k) && String(dati[f.k] || "").trim());
+function renderOggi() {
+  const corso = inCorso();
+  $("og-nuova").hidden = !corso;
+  if (corso) {
+    const n = FIELDS.filter(f => String(dati[f.k] || "").trim()).length;
+    $("og-dove").textContent = "In corso";
+    $("og-sito").textContent = [dati.codice, dati.sito].filter(Boolean).join(" ") || "Scheda senza sito";
+    $("og-info").textContent = n + " di " + FIELDS.length + " voci";
+    $("og-via").textContent = "▶ Continua";
+  } else {
+    $("og-via").textContent = "▶ Inizia manutenzione";
+    ogMostraSito();
+    if (navigator.geolocation) posFresca(f => { if (inCorso()) return;
+      let best = null, bd = Infinity; for (const s of SITI) if (s.g === "Wind") { const d = km(f, s); if (d < bd) { bd = d; best = s; } }
+      ogSito = best && bd <= 0.3 ? { ...best, d: bd } : null; ogFix = f; ogMostraSito(); }, () => { ogFix = false; ogMostraSito(); }, 12000);
+  }
+  // today's schede
+  const oggi = today(), fatti = loadStore().filter(s => s.tipo !== "inwit" && ((s.dati || {}).data === oggi)).sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0));
+  $("og-h").hidden = !fatti.length;
+  $("og-lista").innerHTML = fatti.map(s => `<button type="button" data-id="${esc(s.id)}"><span>${esc([s.dati.codice, s.dati.sito].filter(Boolean).join(" ") || "Senza sito")}</span><em>✓ salvata</em></button>`).join("");
+}
+let ogFix = null;
+function ogMostraSito() {
+  if (inCorso()) return;
+  if (ogSito) {
+    const p = schedeSito(ogSito.c, ogSito.n, null)[0];
+    $("og-dove").textContent = "Sei qui · " + fmtKm(ogSito.d);
+    $("og-sito").textContent = ogSito.c + " " + ogSito.n;
+    $("og-info").textContent = "Wind" + (p ? " · ultima volta " + quando(p) : " · prima volta qui");
+  } else {
+    $("og-dove").textContent = ogFix === null ? "Cerco dove sei…" : ogFix ? "Nessun sito Wind qui vicino" : "Posizione non trovata";
+    $("og-sito").textContent = ogFix === null ? " " : "Sito da scegliere";
+    $("og-info").textContent = ogFix === null ? "" : "Lo scrivi nella prima voce, o lo scegli dall'elenco";
+  }
+}
+$("og-via").onclick = () => {
+  setGestore("wind");
+  if (!inCorso()) { newScheda(); if (ogSito) { dati.codice = ogSito.c; dati.sito = ogSito.n; saveDraft(); fillForm(); } }
+  showTab("compila");
+};
+let ogArm = null;
+$("og-nuova").onclick = () => {
+  const b = $("og-nuova");
+  if (!ogArm) { b.textContent = "Non è salvata: tocca ancora per lasciarla"; ogArm = setTimeout(() => { ogArm = null; b.textContent = "Lascia questa e inizia una nuova"; }, 3500); return; }
+  clearTimeout(ogArm); ogArm = null; b.textContent = "Lascia questa e inizia una nuova"; newScheda(); renderOggi();
+};
+$("og-foto").onclick = () => { setGestore("wind"); showTab("foto"); };
+$("og-inwit").onclick = () => { setGestore("inwit"); showTab("compila"); };
+$("og-altro").onclick = () => showTab("siti");
+$("og-lista").onclick = e => { const b = e.target.closest("button[data-id]"); if (!b) return; const x = loadStore().find(y => y.id === b.dataset.id); if (x) { openScheda(x); pzFineVedi(); } };
+
+/* Compila: the whole form as before (Mirko: every site is different, all the items in sight), one bar: voice and Fine */
+function pzOn() { document.body.classList.add("compila-on"); $("pz-bot").hidden = false; }
+function pzOff() { document.body.classList.remove("compila-on"); $("pz-bot").hidden = true; }
+$("pz-av").onclick = () => pzFine();
+$("pz-voce").onclick = () => $("btn-voice").click();
+
+/* the end: saved by itself, then WhatsApp with rapportino and photos ready to go */
+let fiFiles = null;
+function pzFine() {
+  if (document.activeElement) document.activeElement.blur();
+  if (!checkRequired()) return;
+  $("btn-save").click();
+  if (!docId) return;
+  pzFineVedi();
+}
+async function pzFineVedi() {
+  showTab("fine");
+  const d = { ...dati }, code = String(d.codice || "").trim().toUpperCase(), day = d.data || today();
+  const n = FIELDS.filter(f => String(d[f.k] || "").trim()).length, nok = FIELDS.filter(f => f.okko && d[f.k] === "NOK").length;
+  $("fi-t").textContent = [code, d.sito].filter(Boolean).join(" ") || "Manutenzione fatta";
+  fiFiles = null; $("fi-wa").textContent = "Preparo rapportino e foto…";
+  $("fi-s").textContent = "Salvata sul telefono · " + n + " di " + FIELDS.length + " voci" + (nok ? " · " + nok + " NOK" : "");
+  const [foto] = await Promise.all([fotoAll(), foglioPronto()]);
+  const mie = foto.filter(f => fotoGestore(f) === "Wind" && code && codiceFoto(f) === code && giornoDi(f.ts) === day).sort((a, b) => a.ts - b.ts);
+  const files = [];
+  if (SHEET_BG) files.push(new File([toJPG(d)], fileBase(d) + ".jpg", { type: "image/jpeg" }));
+  for (const f of mie) files.push(new File([f.blob], nomeOut(f), { type: "image/jpeg" }));
+  fiFiles = { files, text: [code, sitoTag(d.sito || "", "")].filter(Boolean).join(" ") };
+  $("fi-wa").textContent = "WhatsApp · rapportino" + (mie.length ? " + " + mie.length + " foto" : "");
+}
+// shared inside the tap (iPhone needs it), with the files made ready before
+$("fi-wa").onclick = () => {
+  if (!fiFiles) { toast("Un attimo, sto preparando"); return; }
+  const { files, text } = fiFiles;
+  if (!(navigator.canShare && navigator.canShare({ files }))) { toast("Da qui non si può inviare: aprila dal telefono"); return; }
+  navigator.share(text ? { files, text } : { files }).then(() => bigOk("Inviato")).catch(er => { if (!(er && er.name === "AbortError")) toast("Invio non riuscito, riprova"); });
+};
+$("fi-pdf").onclick = () => $("btn-pdf").click();
+$("fi-mod").onclick = () => showTab("compila");
+$("fi-oggi").onclick = () => showTab("oggi");
+// the app opens on Oggi
+showTab("oggi");
+
 // photos of a colleague (sent by WhatsApp, AirDrop…): kept as they are, put in the site and day of this visit
 // grezza: an Inwit photo just taken (no GPS band, still to save in the gallery)
 async function fotoImporta(files, site, opt = {}) {
