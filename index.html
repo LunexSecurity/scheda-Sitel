@@ -1792,8 +1792,9 @@ const TAB_ORD = ["compila", "storico", "vswr", "galleria", "siti", "numeri", "fo
 let tabOra = "compila";
 // the white pill slides under the chosen tab
 function movePill() {
-  const b = document.querySelector('.tabs button[aria-selected="true"]'), p = $("tab-pill"); if (!b || !p) return;
-  if (!b.offsetWidth) return void setTimeout(movePill, 400);  // header still behind the login
+  // the old tabs are hidden but can still be "selected": take the selected one that is on screen
+  const p = $("tab-pill"), b = [...document.querySelectorAll('.tabs button[aria-selected="true"]')].find(x => x.offsetWidth); if (!p) return;
+  if (!b) { if (!p.parentNode.offsetWidth) setTimeout(movePill, 400); return; }  // header still behind the login
   p.style.width = b.offsetWidth + "px"; p.style.height = b.offsetHeight + "px"; p.style.transform = "translate(" + b.offsetLeft + "px," + b.offsetTop + "px)";
   p.parentNode.classList.add("pill");
 }
