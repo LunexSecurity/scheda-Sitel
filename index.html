@@ -2119,6 +2119,7 @@ const ch3dAvvia = () => {
 };
 $("chiave-f").onsubmit = async e => {
   e.preventDefault(); const code = $("chiave-in").value; if (!code.trim()) return;
+  const blocco = chBlocco(); if (blocco) { chBloccoMostra(blocco); return; }
   $("chiave-go").disabled = true; $("chiave-go").textContent = "Controllo…"; $("chiave-err").hidden = true;
   try {
     const key = await sitiChiave(code); await sitiApri(key);
@@ -2126,12 +2127,26 @@ $("chiave-f").onsubmit = async e => {
     localStorage.setItem("bts-siti-k", btoa(s));
     $("chiave-go").textContent = "✓ Sbloccato"; $("chiave-in").blur();
     try { chPunti(JSON.parse(localStorage.getItem("bts-siti"))); } catch (e2) {}
+    try { localStorage.removeItem("bts-ch-err"); } catch (e2) {}
     $("chiave").classList.add("ok"); setTimeout(() => location.reload(), 3600);
   } catch (er) {
+    // 5 wrong codes: this phone waits 30 minutes, then every further wrong code means 30 more (Mirko)
+    let st = { n: 0, fino: 0 }; try { st = JSON.parse(localStorage.getItem("bts-ch-err")) || st; } catch (e2) {}
+    st.n++; if (st.n >= CH_MAX) st.fino = Date.now() + CH_ATTESA;
+    try { localStorage.setItem("bts-ch-err", JSON.stringify(st)); } catch (e2) {}
     const w = document.querySelector(".ch-wrap"); w.classList.remove("scuoti"); void w.offsetWidth; w.classList.add("scuoti");
-    $("chiave-err").hidden = false; $("chiave-err").textContent = "Codice sbagliato, riprova."; $("chiave-go").disabled = false; $("chiave-go").textContent = "Sblocca";
+    $("chiave-err").hidden = false; $("chiave-err").textContent = st.n >= CH_MAX ? "" : "Codice sbagliato, riprova. Tentativi rimasti: " + (CH_MAX - st.n) + "."; $("chiave-go").disabled = false; $("chiave-go").textContent = "Sblocca";
+    if (st.n >= CH_MAX) chBloccoMostra(chBlocco());
   }
 };
+const CH_MAX = 5, CH_ATTESA = 30 * 60 * 1000;
+function chBlocco() { try { const st = JSON.parse(localStorage.getItem("bts-ch-err")); return st && st.fino > Date.now() ? st.fino : 0; } catch (e) { return 0; } }
+function chBloccoMostra(fino) {
+  $("chiave-err").hidden = false; $("chiave-err").textContent = "Troppi tentativi sbagliati: riprova alle " + new Date(fino).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }) + ".";
+  $("chiave-go").disabled = true; $("chiave-in").disabled = true;
+  setTimeout(() => { $("chiave-go").disabled = false; $("chiave-in").disabled = false; $("chiave-err").hidden = true; }, Math.max(0, fino - Date.now()) + 500);
+}
+{ const b = chBlocco(); if (b) chBloccoMostra(b); }
 const GRUPPI = ["Wind", "Inwit"];
 const SITO_BY_CODE = new Map(SITI.flatMap(s => s.o ? [[s.c, s], [s.o, s]] : [[s.c, s]]));
 function siteCode(v) {
